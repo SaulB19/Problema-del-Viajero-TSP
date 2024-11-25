@@ -1,0 +1,153 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class Grafo implements Iterator<Ccity> {
+    //Parametros iniciales
+    private final int alpha;
+    private final int beta;
+    private final double evaporacion;
+    private final double minimaFeromona;
+    private int ciudadesCantidad;
+    private ArrayList<Ccity> cities;//Contiene las ciudades del grafo
+
+    public int getCiudadesCantidad() {
+        return ciudadesCantidad;
+    }
+
+    public Grafo(int alpha, int beta, double evaporacion,double minimaFeromona) {
+        this.alpha = alpha;
+        this.beta = beta;
+        this.evaporacion = evaporacion;
+        this.minimaFeromona = minimaFeromona;
+       // ciudadesG=new HashMap<>();
+        Creargrafo();
+    }
+    private void Creargrafo(){
+        ciudadesCantidad=4;
+        cities=new ArrayList<>();
+        //crea las ciudades
+        Ccity A = new Ccity("A");
+        Ccity B = new Ccity("B");
+        Ccity C = new Ccity("C");
+        Ccity D = new Ccity("D");
+        Ccity E = new Ccity("E");
+        //agrega los pesos
+        A.agregarConexion(B,100L);
+        A.agregarConexion(C,120L);
+        A.agregarConexion(D,150L);
+        A.agregarConexion(E,180L);
+
+        B.agregarConexion(A,100L);
+        B.agregarConexion(C,90L);
+        B.agregarConexion(D,130L);
+        B.agregarConexion(E,160L);
+
+        C.agregarConexion(A,120L);
+        C.agregarConexion(B,90L);
+        C.agregarConexion(D,110L);
+        C.agregarConexion(E,140L);
+
+        D.agregarConexion(A,150L);
+        D.agregarConexion(B,130L);
+        D.agregarConexion(C,110L);
+        D.agregarConexion(E,100L);
+
+        E.agregarConexion(A,180L);
+        E.agregarConexion(B,160L);
+        E.agregarConexion(C,140L);
+        E.agregarConexion(D,100L);
+        //Agrega las ciudades al arreglo
+        cities.add(A);
+        cities.add(B);
+        cities.add(C);
+        cities.add(D);
+        cities.add(E);
+
+
+    }
+    /*
+    * Actualiza las feromonas unicamente del mejor recorrido*/
+    public void actualizarferomonas (Hormiga hormiga){
+        Ccity puntoa = null;
+        Ccity puntob= null;
+        ArrayList<Ccity> ciudades = hormiga.getRuta();
+        /* Pseudocodigo
+         *Aumentar la cantidad de feromonas de la siguiente manera:
+            “feromonas += 1 / costo_del_recorrido”
+         */
+        double feromonasAgregadas = 1/hormiga.pesoRecorrido();
+        for(int i = 0; i < ciudades.size(); i++){
+            //Va regresando la ciudad y su siguiente
+             puntoa = ciudades.get(i);
+            try { //Cuando se llega a la ultima ciudad la siguiente es null
+                puntob = ciudades.get(i + 1);
+            }catch (Exception e){ //Evitamos error por null y regresamos la ciudad original
+                 puntob = ciudades.get(0);
+            }
+            /*
+            * Se tienen que actualizar las feromonas de A a B y B a A porque son un
+            * mismo camino */
+            //obtiene las feromonas que hay de A a B y le suma la nueva cantidad
+            double newFeromonaAalb = puntoa.getFeromonas(puntob)+feromonasAgregadas;
+            //Actualiza las feromonas de A a B
+            puntoa.setFeromonas(puntob,newFeromonaAalb);
+            //Obtiene las feromonas de B a A y le suma la nueva cantidad
+            double newFeromonasBalA = puntob.getFeromonas(puntoa)+feromonasAgregadas;
+            //Actualiza las feromonas de B a a
+            puntob.setFeromonas(puntoa,newFeromonasBalA);
+
+
+        }
+
+
+
+    }
+    public void EvaporarFeromonas(){
+        //Primero evaporo todas las feromonas y luego le sumo la sumatoria de cada variacion
+        //Evapora las feromonas para cada ciudad del grafo
+        for (Ccity c : cities) {
+            for (int i = 0; i <c.tamano(); i++){
+                Ccity temp=c.GetCitybyNumber(i);
+                double newFeromona=c.getFeromonas(temp)*(1-evaporacion);
+                /*
+                * Se asegura de que las feromonas no disminuyan de un cierto minimo
+                * Para  que siempre haya una posibiliadd de que se elija el camino*/
+                if (newFeromona<minimaFeromona){
+                    c.setFeromonas(temp,minimaFeromona);
+                }else {
+                    c.setFeromonas(temp, newFeromona);
+                }
+            }
+        }
+    }
+
+    public int getAlpha() {
+        return alpha;
+    }
+
+    public int getBeta() {
+        return beta;
+    }
+
+    public double getEvaporacion() {
+        return evaporacion;
+    }
+
+    public ArrayList<Ccity> getCities() {
+        return cities;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public Ccity next() {
+        return null;
+    }
+
+    public Iterator<Ccity> iterator() {
+        return cities.iterator();
+    }
+}
