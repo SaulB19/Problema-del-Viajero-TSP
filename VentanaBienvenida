@@ -1,5 +1,3 @@
-/* En esta ventana habrá una introducción para que el usuario escoja las opciones del programa*/
-
 package com.mycompany.proyectotsp;
 
 import java.awt.Color;
@@ -66,21 +64,21 @@ public class VentanaBienvenida extends JFrame{
         ImagenBrujula.setIcon(new ImageIcon(imagenBru.getImage().getScaledInstance(ImagenBrujula.getWidth(), ImagenBrujula.getHeight(), Image.SCALE_SMOOTH)));
         panelPrincipal.add(ImagenBrujula);
         
-        // Botón para iniciar el mapa
-        BotonMapa = new JButton();
-        BotonMapa.setText("¿Qué es el TSP?");
-        BotonMapa.setBounds(275, 300, 600, 100);
-        BotonMapa.setFont(new Font("times new roman", Font.ITALIC, 36));
-        abrirMapa();
-        panelPrincipal.add(BotonMapa);
-        
         // Botón para conocer el progama o tutorial
         BotonPresentacion = new JButton();
-        BotonPresentacion.setText("Abrir mapa! :D");
-        BotonPresentacion.setBounds(275, 425, 600, 100);
+        BotonPresentacion.setText("¿Qué es el TSP?");
+        BotonPresentacion.setBounds(275, 300, 600, 100);
         BotonPresentacion.setFont(new Font("times new roman", Font.ITALIC, 36));
         abrirPresentacion();
         panelPrincipal.add(BotonPresentacion);
+        
+        // Botón para iniciar el mapa
+        BotonMapa = new JButton();
+        BotonMapa.setText("Abrir mapa! :D");
+        BotonMapa.setBounds(275, 425, 600, 100);
+        BotonMapa.setFont(new Font("times new roman", Font.ITALIC, 36));
+        abrirMapa();
+        panelPrincipal.add(BotonMapa);
     }
     
     // Este metodo asigna un evento al BotonPresentacion, el cual es dirigir a una introduccion
@@ -107,6 +105,7 @@ public class VentanaBienvenida extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 VentanaMapa venT = new VentanaMapa();
                 venT.setVisible(true);
+                setVisible(false);
             }
         };
         BotonMapa.addActionListener(mapa);
