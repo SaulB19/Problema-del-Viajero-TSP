@@ -20,8 +20,8 @@ public class ProyectoTSP {
     public static void main(String[] args) {
         
         // Este es nuestro método main, aquí solamente tendrá que crear
-        // un objeto del tipo VentanaMenu y este nos dirigirá después al
-        // juego por medio de la interfaz gráfica
+        // un objeto del tipo VentanaBienvenida y este nos dirigirá después al
+        // mapa por medio de la interfaz gráfica
         
         VentanaBienvenida mapaNuevo = new VentanaBienvenida();
         mapaNuevo.setVisible(true);
