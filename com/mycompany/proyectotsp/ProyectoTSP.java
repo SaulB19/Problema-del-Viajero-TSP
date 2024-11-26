@@ -1,4 +1,5 @@
 /* Instrucciones para declarar las diferentes ventanas y el algoritmo para las rutas*/
+
 package com.mycompany.proyectotsp;
 
 /* AUTORES:
@@ -13,17 +14,21 @@ package com.mycompany.proyectotsp;
     Valles Hernández Ricardo Arturo
     Velázquez Argáez Carlos Andrés Emmanuel
     Zamora Uceda Paulo Román
-    Zavala Mayorga Ángel */
+    Zavala Mayorga ángel */
 
 public class ProyectoTSP {
-
     public static void main(String[] args) {
-        
+
         // Este es nuestro método main, aquí solamente tendrá que crear
-        // un objeto del tipo VentanaBienvenida y este nos dirigirá después al
-        // mapa por medio de la interfaz gráfica
-        
-        VentanaBienvenida mapaNuevo = new VentanaBienvenida();
-        mapaNuevo.setVisible(true);
+        // un objeto del tipo VentanaMenu y este nos dirigirá después al
+        // juego por medio de la interfaz gráfica
+
+        // VentanaBienvenida mapaNuevo = new VentanaBienvenida();
+        // mapaNuevo.setVisible(true);
+
+        ACO aco = new ACO(50, 200, 1, 1, 0.64, 0.005);
+        Hormiga mejorHormiga = aco.ACO();
+        aco.imprimirMejorRuta(mejorHormiga);
+
     }
 }
