@@ -40,7 +40,6 @@ public class Hormiga {
             noHaIdo = explorarNodos(VerticeRandom());
             for (Ccity ciudad : grafo.getCiudades().values()) {
                 if (!noHaIdo.contains(ciudad)) {
-                    // TODO: Cambiar esta excepcion a algo mas adecuado
                     throw new IllegalComponentStateException("Ninguna ciudad ha sido visitada. Agrega una ciudad inicial");
                 }
             }
