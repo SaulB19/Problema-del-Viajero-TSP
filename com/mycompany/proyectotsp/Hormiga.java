@@ -34,17 +34,14 @@ public class Hormiga {
 
     // Agrega al arreglo todas las ciudades para saber cuales no han sido visitadas
     public void crearCiudadesNoVisitadas() {
-
         // Si no hay ninguna ciudad inicial especifica, agrega todos los nodos y
         // verifica que todos esten conectados
         if (inicio == null) {
             noHaIdo = explorarNodos(VerticeRandom());
-
             for (Ccity ciudad : grafo.getCiudades().values()) {
                 if (!noHaIdo.contains(ciudad)) {
                     // TODO: Cambiar esta excepcion a algo mas adecuado
-                    throw new IllegalComponentStateException(
-                            "Se debe agregar una ciudad inicial si todos los nodos no estan interconectados");
+                    throw new IllegalComponentStateException("Ninguna ciudad ha sido visitada. Agrega una ciudad inicial");
                 }
             }
 
