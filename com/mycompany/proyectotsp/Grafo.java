@@ -93,7 +93,7 @@ public class Grafo {
 
         try {
             // TODO: Usar la formula de Haversine para calcular la distancia en lugar del teorema de Pitagoras
-            ProcessBuilder pb = new ProcessBuilder("python3", "com/mycompany/proyectotsp/leerJSON.py");
+            ProcessBuilder pb = new ProcessBuilder("python3", "solucionTemporal/leerJSON.py");
 
             Process process = pb.start();
 

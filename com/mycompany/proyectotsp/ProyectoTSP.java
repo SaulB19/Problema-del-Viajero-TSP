@@ -23,8 +23,8 @@ public class ProyectoTSP {
         // un objeto del tipo VentanaMenu y este nos dirigirá después al
         // juego por medio de la interfaz gráfica
 
-        // VentanaBienvenida bienvenida = new VentanaBienvenida();
-        // bienvenida.setVisible(true);
+        VentanaBienvenida bienvenida = new VentanaBienvenida();
+        bienvenida.setVisible(true);
 
         // TODO: Reubicar este codigo de manera que se ejecute cuando el usuario presione 'Calcular ruta'
         ACO aco = new ACO(5, 2, 1, 1, 0.64, 0.005);
