@@ -1,0 +1,75 @@
+import java.io.FileInputStream;
+import java.util.Collection;
+import java.util.HashMap;
+
+import org.apache.poi.xssf.usermodel.*;
+
+/*
+* PARA PODER EJECUTAR ESTA CLASE ES NECESARIO QUE SE
+* DESCARGUEN LA LIBRERIA APACHE POI*/
+
+class LeerExcel {
+    /*
+    * Lee el excel y crea un HashMap que contiene las ciudades generadas*/
+    public HashMap<String,Ccity> leerexcel (){
+        HashMap<String,Ccity> ciudades =  new HashMap<String,Ccity>();
+        /*
+        * NOTA EL NOMBRE STRING DEL ARCHIVO DEBE SER EL NOMBRE CON EL QUE LO TIENEN
+        * EN CASO DE QUE ESTE EN OTRA CARPETA DEBE ESTAR LA DIRECCION DESDE SU COMPUTADORA
+        * si la direccion o el nombre estan mal dira que no encontro el archivo*/
+        try {
+            FileInputStream fis = new FileInputStream("matriz_adyacencia_estados.xlsx");
+            XSSFWorkbook workbook = new XSSFWorkbook(fis);
+            XSSFSheet sheet = workbook.getSheet("Sheet1");
+
+            //read Data with loop
+            for(int i=1;i<=52;i++) {
+                //lee la fila
+                XSSFRow row = sheet.getRow(i);
+                /* Por cada fila obtiene la posicion 0 (nombre) y crea una ciudad nueva*/
+                Ccity nuevaCiudad = new Ccity(row.getCell(0).getStringCellValue());
+
+                //lee las columnas
+                for(int j=0;j<=52;j++) {
+                    XSSFCell cell = row.getCell(j);
+                    switch (cell.getCellType()){
+                     case STRING:
+                         /*
+                         * La unica String es la 0 que representa el nombre de la ciudad
+                         * Como ya se creo previamente no debe hacer nada*/
+                         break;
+
+                         case NUMERIC:
+                             /* Si el valor es 0 significa que no hay conexion
+                             * Si es diferente a 0 hay conexion y el valor es el peso*/
+                             if(cell.getNumericCellValue()!=0) {
+                                 System.out.print(cell.getNumericCellValue());
+                                 XSSFRow row1 = sheet.getRow(0);
+                                 XSSFCell cell1 = row1.getCell(j);
+                                 Ccity conecta = new Ccity(cell1.getStringCellValue());
+                                 nuevaCiudad.agregarConexion(conecta,cell.getNumericCellValue(),true);
+                                 System.out.print(cell1.getStringCellValue());
+                             }
+
+                             break;
+
+                    }
+                }
+                ciudades.put(nuevaCiudad.getNombre(),nuevaCiudad);
+                System.out.println();
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+        /*
+        * Esto imprime el HashmMap de ciudades, es simplemente para verificar
+        * que se realizan bien las conexiones y los pesos*/
+        Collection arrciudades =  ciudades.values();
+        for (Object nuevaCiudad : arrciudades) {
+            Ccity newCity = (Ccity)nuevaCiudad;
+            System.out.println(newCity.getDistancias());
+        }
+        return ciudades;
+    }
+}
