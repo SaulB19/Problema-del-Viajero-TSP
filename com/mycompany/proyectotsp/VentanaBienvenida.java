@@ -2,7 +2,6 @@
 
 package com.mycompany.proyectotsp;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -12,6 +11,7 @@ import javax.swing.*;
 
 import java.awt.image.BufferedImage;
 
+// TODO: Mover el contenido de esta clase a VentanaMapa y adaptarlo
 public class VentanaBienvenida extends JFrame {
 
     private Grafo grafo;
@@ -30,25 +30,7 @@ public class VentanaBienvenida extends JFrame {
         grafo = new Grafo(1, 1, 0.5, 0.5);
     }
 
-    public BufferedReader ejecutarPython() {
-        BufferedReader salida = null;
-
-        try {
-            // Construye el comando para ejecutar el script
-            ProcessBuilder pb = new ProcessBuilder("python3", "com/mycompany/proyectotsp/leerJSON.py");
-
-            Process process = pb.start();
-            // process.waitFor();
-
-            // Lee la salida estándar del script
-            salida = process.inputReader();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return salida;
-    }
-
+    // TODO: Adaptar fondo para que se reajuste al tamaño de la ventana
     private void cargarFondo() {
         try {
             fondo = javax.imageio.ImageIO.read(new File("imagenes/mapaEUA.jpg"));
@@ -58,8 +40,9 @@ public class VentanaBienvenida extends JFrame {
     }
 
     private class GrafoPanel extends JPanel {
+        // TODO: Adaptar fondo para que se reajuste al tamaño de la ventana
         public GrafoPanel() {
-            // cargarFondo();
+            cargarFondo();
         }
 
         @Override
@@ -92,6 +75,7 @@ public class VentanaBienvenida extends JFrame {
             }
         }
 
+        // TODO: Reemplazar este codigo para que se dibujen intuitivamente las feromonas en los enlaces
         private void dibujarEnlaces(Graphics2D g) {
             g.setColor(Color.BLACK);
 

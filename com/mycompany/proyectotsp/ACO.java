@@ -7,6 +7,9 @@ public class ACO {
     private int cantidadHormigas;// Se recomiendan las mimsmas que las ciudades
     private int repeticiones; // cuantas veces se va a hacer este proceso
 
+    // TODO: Cambiar esto para que el usuario eliga su ciudad inicial, o null en caso de no haber
+    private String ciudadInicial = "District of Columbia"; // Si es null, escoje la ciudad inicial aleatoriamente para cada hormiga
+
     public ACO(int cantidadHormigas, int repeticiones, int alpha, int beta, double evaporacion, double minimaFeromona) {
         this.cantidadHormigas = cantidadHormigas;
         this.repeticiones = repeticiones;
@@ -22,8 +25,10 @@ public class ACO {
         for (int i = 0; i < repeticiones; i++) {
             // paso 1 generar las hormigas que se van a lanzar
             Hormiga[] hormigas = new Hormiga[cantidadHormigas];
+            
+            // TODO: (opcional) Paralelizar este bucle para que las hormigas trabajen simultaneamente
             for (int j = 0; j < cantidadHormigas; j++) {
-                hormigas[j] = new Hormiga(grafo);// crea la hormiga
+                hormigas[j] = new Hormiga(grafo, grafo.getCiudades().get(ciudadInicial));// crea la hormiga
                 hormigas[j].viajar();// hace viajar a la hormiga
             }
             mejorHormiga = ObtenerMejorHormiga(hormigas);

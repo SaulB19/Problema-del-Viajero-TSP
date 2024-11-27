@@ -23,10 +23,11 @@ public class ProyectoTSP {
         // un objeto del tipo VentanaMenu y este nos dirigirá después al
         // juego por medio de la interfaz gráfica
 
-        // VentanaBienvenida mapaNuevo = new VentanaBienvenida();
-        // mapaNuevo.setVisible(true);
+        // VentanaBienvenida bienvenida = new VentanaBienvenida();
+        // bienvenida.setVisible(true);
 
-        ACO aco = new ACO(50, 200, 1, 1, 0.64, 0.005);
+        // TODO: Reubicar este codigo de manera que se ejecute cuando el usuario presione 'Calcular ruta'
+        ACO aco = new ACO(5, 2, 1, 1, 0.64, 0.005);
         Hormiga mejorHormiga = aco.ACO();
         aco.imprimirMejorRuta(mejorHormiga);
 

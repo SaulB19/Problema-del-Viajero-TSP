@@ -37,11 +37,6 @@ public class Ccity implements Iterator<Ccity> {
         temporal.put(newCity, 0.0);
     }
 
-    // Metodo que regresa el peso conociendo la ciudad
-    public double GetpesoCiudad(Ccity newCity) {
-        return distancias.get(newCity);
-    }
-
     // Metodo que nos dice si podemos ir a otra ciudad desde esta
     public boolean contiene(Ccity newCity) {
         return enlacesExistentes.get(newCity);
@@ -92,5 +87,9 @@ public class Ccity implements Iterator<Ccity> {
 
     public String getNombre() {
         return nombre;
+    }
+
+    public boolean estaEnlazadaCon(Ccity posible) {
+        return enlacesExistentes.get(posible);
     }
 }

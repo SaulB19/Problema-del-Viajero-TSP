@@ -1,5 +1,7 @@
 package com.mycompany.proyectotsp;
 
+import java.awt.IllegalComponentStateException;
+
 import java.util.*;
 
 public class Hormiga {
@@ -7,17 +9,23 @@ public class Hormiga {
      * La variable ruta guarda las ciudades en el orden que se visitaron
      * NO repite las ciudades por lo que despues de la ultima ciudad
      * se debe agregar el peso de la primera
-     */private ArrayList<Ccity> ruta;
+     */
+    private ArrayList<Ccity> ruta;
     // Usado para indicar el grafo que recorre
     private Grafo grafo;
     private ArrayList<Ccity> noHaIdo;
 
-    public Hormiga(Grafo grafo) {
+    private Ccity inicio;
+
+    public Hormiga(Grafo grafo, Ccity ciudadInicial) {
         this.grafo = grafo;
+        inicio = ciudadInicial;
+
         ruta = new ArrayList<>();
         // yaFueoNo = new HashSet<>();
         noHaIdo = new ArrayList<>();
-        CiudadesNoVisitadas();
+
+        crearCiudadesNoVisitadas();
     }
 
     public ArrayList<Ccity> getRuta() {
@@ -25,10 +33,59 @@ public class Hormiga {
     }
 
     // Agrega al arreglo todas las ciudades para saber cuales no han sido visitadas
-    public void CiudadesNoVisitadas() {
-        for (Ccity ciudad : grafo.getCiudades().values()) {
-            noHaIdo.add(ciudad);
+    public void crearCiudadesNoVisitadas() {
+
+        // Si no hay ninguna ciudad inicial especifica, agrega todos los nodos y
+        // verifica que todos esten conectados
+        if (inicio == null) {
+            noHaIdo = explorarNodos(VerticeRandom());
+
+            for (Ccity ciudad : grafo.getCiudades().values()) {
+                if (!noHaIdo.contains(ciudad)) {
+                    // TODO: Cambiar esta excepcion a algo mas adecuado
+                    throw new IllegalComponentStateException(
+                            "Se debe agregar una ciudad inicial si todos los nodos no estan interconectados");
+                }
+            }
+
+            return;
         }
+
+        noHaIdo = explorarNodos(inicio);
+    }
+
+    private ArrayList<Ccity> explorarNodos(Ccity inicial) {
+        ArrayList<Ccity> nodosEncontrados = new ArrayList<>();
+        nodosEncontrados.add(inicial);
+
+        HashMap<Ccity, Boolean> yaExplorados = new HashMap<>();
+        for (Ccity ccity : grafo.getCiudades().values()) {
+            yaExplorados.put(ccity, false);
+        }
+        yaExplorados.put(inicial, true);
+
+        Stack<Ccity> pila = new Stack<>();
+        pila.push(inicial);
+
+        while (!pila.isEmpty()) {
+            Ccity actual = pila.pop();
+
+            for (Map.Entry<Ccity, Boolean> item : actual.getEnlaces().entrySet()) {
+                Ccity siguiente = item.getKey();
+                boolean estanEnlazadas = item.getValue();
+
+                if (!estanEnlazadas || yaExplorados.get(siguiente)) {
+                    continue;
+                }
+
+                pila.push(siguiente);
+                yaExplorados.put(siguiente, true);
+                nodosEncontrados.add(siguiente);
+            }
+
+        }
+
+        return nodosEncontrados;
     }
 
     // Este metodo sirve para elegir la ciudad de inicio de la hormiga
@@ -63,7 +120,7 @@ public class Hormiga {
             } catch (Exception e) {
                 b = ruta.get(0);
             }
-            peso += a.GetpesoCiudad(b);
+            peso += a.getDistancia(b);
         }
         return peso;
     }
@@ -72,29 +129,38 @@ public class Hormiga {
      * Obtiene el recorrido de la hormiga basandose en las probabilidades
      */
     public void viajar() {
-        Ccity inicio = VerticeRandom();
-        ruta.add(inicio);
+        if (inicio == null)
+            inicio = VerticeRandom();
+
         noHaIdo.remove(inicio);// quita de las que faltan por visitar
         Ccity actual = inicio;
         /*
          * Cuando no ha ido esta vacio significa que ya se han recorrido todas las
          * ciudades
          */
+
+        // TODO: (imporate) Resolver el problema de los callejones sin salida
+        // Las hormigas no pueden pasar 2 veces por el mismo nodo. Si una hormiga llega
+        // a un nodo cuyos enlaces ya han sido todos explorados anteriormente, la
+        // hormiga ya no puede moverse a ningun otro nodo. 
         while (!noHaIdo.isEmpty()) {// siempre que no ha ido no este vacia
             double random = Math.random();// genera un numero del 0 al 1
-            ArrayList<Par<Ccity, Double>> probabilidades = probabilidadDeIr(actual);
-            for (int i = 0; i < probabilidades.size(); i++) {
-                double sigCiudad = probabilidades.get(i).valor;
+
+            Map<Ccity, Double> probabilidades = probabilidadDeIr(actual);
+
+            for (Map.Entry<Ccity, Double> probabilidad : probabilidades.entrySet()) {
+                double sigCiudad = probabilidad.getValue();
+
                 if (random < sigCiudad) {
-                    actual = probabilidades.get(i).ciudad; // se mueve a la siguiente ciudad
+                    actual = probabilidad.getKey(); // se mueve a la siguiente ciudad
                     noHaIdo.remove(actual);
                     ruta.add(actual);
                     break; // sale del ciclo for y vuelve al while
+
                 }
             }
 
         }
-
     }
 
     /*
@@ -102,31 +168,21 @@ public class Hormiga {
      * a cada ciudad
      * La ciudad es la clave (para poder obtenerla) y la probabilidad es el dato
      */
-    public ArrayList<Par<Ccity, Double>> probabilidadDeIr(Ccity actual) {
-        ArrayList<Par<Ccity, Double>> probabilidades = new ArrayList<>();
-        int valorAObtener = 0;
-        for (Ccity siguiente : grafo.getCiudades().values()) {
-            // si no ha ido contiene a la ciudad, significa que no hemos ido y podemos
-            // agregarla
-            if (noHaIdo.contains(siguiente)) {
-                double sumar;
-                if (valorAObtener == 0) {
-                    double probabilidad = ((deseo(actual, siguiente)) / sumaDeseos(actual));
-                    Par<Ccity, Double> par = new Par<>();
-                    par.ciudad = siguiente;
-                    par.valor = probabilidad;
-                    probabilidades.add(par);
-                } else {
-                    sumar = probabilidades.get(valorAObtener - 1).valor;
-                    double probabilidad = ((deseo(actual, siguiente)) / sumaDeseos(actual)) + sumar;
-                    Par<Ccity, Double> par = new Par<>();
-                    par.ciudad = siguiente;
-                    par.valor = probabilidad;
-                    probabilidades.add(par);
-                }
-                valorAObtener++;
+    public HashMap<Ccity, Double> probabilidadDeIr(Ccity actual) {
+        HashMap<Ccity, Double> probabilidades = new HashMap<>();
+
+        double acumulado = 0;
+
+        double sumatoriaDeseos = sumaDeseos(actual);
+        for (Ccity siguiente : noHaIdo) {
+            if (actual.estaEnlazadaCon(siguiente)) {
+                double probabilidad = deseo(actual, siguiente) / sumatoriaDeseos;
+                probabilidades.put(siguiente, probabilidad + acumulado);
+
+                acumulado += probabilidad;
             }
         }
+
         return probabilidades;
     }
 
@@ -134,7 +190,9 @@ public class Hormiga {
     public double sumaDeseos(Ccity actual) {
         double suma = 0;
         for (Ccity siguiente : noHaIdo) {
-            suma += deseo(actual, siguiente);
+            if (actual.estaEnlazadaCon(siguiente)) {
+                suma += deseo(actual, siguiente);
+            }
         }
         return suma;
     }
@@ -142,15 +200,12 @@ public class Hormiga {
     // Obtiene el numerador (deseo) de la hormiga de ir de una ciudad a otra
     public double deseo(Ccity actual, Ccity siguiente) {
         double feromonas = actual.getFeromonas(siguiente);
-        double distancia = (double) 1 / actual.GetpesoCiudad(siguiente);
-        feromonas = Math.pow(feromonas, grafo.getAlpha());
-        distancia = Math.pow(distancia, grafo.getBeta());
-        return feromonas * distancia;
-    }
+        double valorHeuristico = 1 / actual.getDistancia(siguiente);
 
-    public class Par<E, T> {
-        E ciudad;
-        T valor;
+        feromonas = Math.pow(feromonas, grafo.getAlpha());
+        valorHeuristico = Math.pow(valorHeuristico, grafo.getBeta());
+
+        return feromonas * valorHeuristico;
     }
 
 }

@@ -49,6 +49,7 @@ public class Grafo {
     }
 
     private void crearGrafo() {
+        // TODO: Realizar el procesamiento del .json en Java y no en python
         try (BufferedReader reader = leerMatriz()) {
             String linea = reader.readLine();
             String[] encabezados = linea.split(",");
@@ -86,17 +87,17 @@ public class Grafo {
         inicializarPosiciones();
     }
 
+    // TODO: Realizar el procesamiento del .json en Java y no en python
     private BufferedReader leerMatriz() {
         BufferedReader salida = null;
 
         try {
-            // Construye el comando para ejecutar el script
+            // TODO: Usar la formula de Haversine para calcular la distancia en lugar del teorema de Pitagoras
             ProcessBuilder pb = new ProcessBuilder("python3", "com/mycompany/proyectotsp/leerJSON.py");
 
             Process process = pb.start();
-            // process.waitFor();
 
-            // Lee la salida estándar del script
+            // Lee la salida estandar del script, que tiene formato de csv
             salida = process.inputReader();
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,6 +119,7 @@ public class Grafo {
                 "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico",
         };
 
+        // TODO: Reajustar las posiciones en pantalla de los nodos de las ciudades, o calcularlas dinamicamente
         double[][] coordenadas = {
                 { 516, 548 }, { 92, 660 }, { 150, 484 }, { 430, 496 }, { 48, 372 },
                 { 248, 366 }, { 676, 244 }, { 650, 326 }, { 628, 330 }, { 606, 672 },

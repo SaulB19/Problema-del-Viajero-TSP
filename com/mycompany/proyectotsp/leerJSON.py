@@ -2,7 +2,6 @@ from json import load
 from math import sqrt
 from csv import DictWriter
 from sys import stdout
-from os import linesep
 
 
 def main():
@@ -59,6 +58,7 @@ def interpretar(objeto) -> list[dict[str]]:
             x1, y1 = origen["Centro"]
             x2, y2 = destino["Centro"]
 
+            # TODO: Usar la formula de Haversine para calcular la distancia en lugar del teorema de Pitagoras
             distancia: float = sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
             distancias[destino["Nombre"]] = str(distancia)
