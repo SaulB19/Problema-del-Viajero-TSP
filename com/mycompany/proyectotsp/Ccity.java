@@ -29,7 +29,7 @@ public class Ccity implements Iterator<Ccity> {
 
         // Cada que agrega una nueva conexion inicializa la ruta con un nivel de
         // feromonas
-        feromonas.put(newCity, 0.0354);
+        feromonas.put(newCity, 1.0);
         // En temporal la suma hasta el momento es 0
         temporal.put(newCity, 0.0);
     }

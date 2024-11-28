@@ -182,13 +182,11 @@ public class Grafo {
              * mismo camino
              */
             // obtiene las feromonas que hay de A a B y le suma la nueva cantidad
-            double newFeromonaAalb = puntoa.getFeromonas(puntob) + feromonasAgregadas;
+            double newFeromona = puntoa.getFeromonas(puntob) + feromonasAgregadas;
             // Actualiza las feromonas de A a B
-            puntoa.setFeromonas(puntob, newFeromonaAalb);
-            // Obtiene las feromonas de B a A y le suma la nueva cantidad
-            double newFeromonasBalA = puntob.getFeromonas(puntoa) + feromonasAgregadas;
+            puntoa.setFeromonas(puntob, newFeromona);
             // Actualiza las feromonas de B a a
-            puntob.setFeromonas(puntoa, newFeromonasBalA);
+            puntob.setFeromonas(puntoa, newFeromona);
 
         }
 

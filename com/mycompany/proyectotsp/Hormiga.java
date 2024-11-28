@@ -95,19 +95,18 @@ public class Hormiga {
         while (!noHaIdo.isEmpty()) {// siempre que no ha ido no este vacia
             double random = Math.random();// genera un numero del 0 al 1
 
-            Map<Ccity, Double> probabilidades = probabilidadDeIr(actual);
+            ArrayList<Par> probabilidades = probabilidadDeIr(actual);
 
-            if (probabilidades.isEmpty())
-            {
+            if (probabilidades.isEmpty()) {
                 estaViva = false;
                 return false;
             }
 
-            for (Map.Entry<Ccity, Double> probabilidad : probabilidades.entrySet()) {
-                double sigCiudad = probabilidad.getValue();
+            for (Par probabilidad : probabilidades) {
+                double sigCiudad = probabilidad.probabilidad;
 
                 if (random < sigCiudad) {
-                    actual = probabilidad.getKey(); // se mueve a la siguiente ciudad
+                    actual = probabilidad.ciudad; // se mueve a la siguiente ciudad
                     noHaIdo.remove(actual);
                     ruta.add(actual);
                     break; // sale del ciclo for y vuelve al while
@@ -123,8 +122,18 @@ public class Hormiga {
      * a cada ciudad
      * La ciudad es la clave (para poder obtenerla) y la probabilidad es el dato
      */
-    public HashMap<Ccity, Double> probabilidadDeIr(Ccity actual) {
-        HashMap<Ccity, Double> probabilidades = new HashMap<>();
+    class Par {
+        public Ccity ciudad;
+        public double probabilidad;
+
+        public Par(Ccity ciudad, double probabilidad) {
+            this.ciudad = ciudad;
+            this.probabilidad = probabilidad;
+        }
+    }
+
+    public ArrayList<Par> probabilidadDeIr(Ccity actual) {
+        ArrayList<Par> probabilidades = new ArrayList<>();
 
         double acumulado = 0;
 
@@ -132,7 +141,7 @@ public class Hormiga {
         for (Ccity siguiente : noHaIdo) {
             if (actual.contiene(siguiente)) {
                 double probabilidad = deseo(actual, siguiente) / sumatoriaDeseos;
-                probabilidades.put(siguiente, probabilidad + acumulado);
+                probabilidades.add(new Par(siguiente, probabilidad + acumulado));
 
                 acumulado += probabilidad;
             }
@@ -157,8 +166,8 @@ public class Hormiga {
         double feromonas = actual.getFeromonas(siguiente);
         double valorHeuristico = 1 / actual.getDistancia(siguiente);
 
-        feromonas = Math.pow(feromonas * 100, grafo.getAlpha());
-        valorHeuristico = Math.pow(valorHeuristico * 100, grafo.getBeta());
+        feromonas = Math.pow(feromonas, grafo.getAlpha());
+        valorHeuristico = Math.pow(valorHeuristico, grafo.getBeta());
 
         return feromonas * valorHeuristico;
     }
