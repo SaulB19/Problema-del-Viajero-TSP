@@ -43,7 +43,7 @@ public class Grafo {
         // La cadena debe de ser el nombre del archivo como lo tengan guardado
         // Se pone la cadena como parametro de FileReader
 
-        try (BufferedReader bf = new BufferedReader(new FileReader("matriz_adyacencia_estados1.csv"))) {
+        try (BufferedReader bf = new BufferedReader(new FileReader("matriz_completa.csv"))) {
             String linea;
             String[] ciudadesName = new String[53];
             // IMPORTANTE la posicion 0 de ciudades name no tiene nada
