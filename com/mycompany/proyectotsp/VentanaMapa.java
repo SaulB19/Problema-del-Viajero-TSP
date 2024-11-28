@@ -8,7 +8,10 @@ import javax.swing.*;
 
 public class VentanaMapa extends JFrame {
     private JPanel panelMapa, panelOpciones;
+    private JComboBox<String> MenuCiudades;
     private JButton botonRuta;
+    private JTextArea RutaDetallada = new JTextArea();
+    private String texto;
     private Grafo grafo;
 
     public VentanaMapa() {
@@ -35,7 +38,7 @@ public class VentanaMapa extends JFrame {
                 Graphics2D g2 = (Graphics2D) g;
 
                 // Dibuja la imagen de fondo
-                ImageIcon imagenM = new ImageIcon("mapaEUA.jpg");
+                ImageIcon imagenM = new ImageIcon("mapaEUA.png");
                 Image fondo = imagenM.getImage();
                 g2.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
 
@@ -45,7 +48,7 @@ public class VentanaMapa extends JFrame {
             }
 
             private void dibujarNodos(Graphics2D g) {
-                g.setFont(new Font("Arial", Font.PLAIN, 10));
+                g.setFont(new Font("times new roman", Font.PLAIN, 8));
                 g.setColor(Color.BLACK);
 
                 for (Map.Entry<String, double[]> entry : grafo.getPosiciones().entrySet()) {
@@ -54,10 +57,10 @@ public class VentanaMapa extends JFrame {
                     int x = (int) coordenadas[0];
                     int y = (int) coordenadas[1];
 
-                    g.fillOval(x - 10, y - 10, 20, 20);
+                    g.fillOval(x - 6, y - 6, 12, 12);
                     g.setColor(Color.BLACK);
-                    g.drawOval(x - 10, y - 10, 20, 20);
-                    g.drawString(nodo, x, y - 15);
+                    g.drawOval(x - 6, y - 6, 12, 12);
+                    g.drawString(nodo, x, y - 8);
                 }
             }
 
@@ -91,7 +94,8 @@ public class VentanaMapa extends JFrame {
     }
 
     private void colocarPanelOpciones() {
-        panelOpciones = new JPanel(new BorderLayout(5, 5));
+        panelOpciones = new JPanel(new FlowLayout());
+        panelOpciones.setPreferredSize(new Dimension(350, 700));
         panelOpciones.setBackground(Color.GRAY);
 
         JLabel ImagenI = new JLabel();
@@ -99,7 +103,7 @@ public class VentanaMapa extends JFrame {
         ImageIcon imagenInst = new ImageIcon("ImagenInstrucciones.png");
         ImagenI.setIcon(new ImageIcon(
                 imagenInst.getImage().getScaledInstance(ImagenI.getWidth(), ImagenI.getHeight(), Image.SCALE_SMOOTH)));
-        panelOpciones.add(ImagenI, BorderLayout.NORTH);
+        panelOpciones.add(ImagenI);
 
         String[] ciudades = { "Alabama", "Alaska", "Arizona", "Arkansas", "California",
                 "Colorado", "Connecticut", "Delaware", "District of Columbia",
@@ -112,28 +116,64 @@ public class VentanaMapa extends JFrame {
                 "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
                 "Texas", "Utah", "Vermont", "Virginia", "Washington",
                 "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico" };
-        JComboBox<String> MenuCiudades = new JComboBox<>(ciudades);
+        MenuCiudades = new JComboBox<>(ciudades);
         MenuCiudades.setFont(new Font("Times New Roman", Font.ITALIC, 18));
-        MenuCiudades.setBounds(0, 200, 300, 100);
-        panelOpciones.add(MenuCiudades, BorderLayout.CENTER);
-
+        MenuCiudades.setBounds(0, 10, 150, 50);
+        panelOpciones.add(MenuCiudades);
+        
+        // Botón para invocar el algoritmo
         botonRuta = new JButton();
         botonRuta.setText("Calcular ruta");
         botonRuta.setFont(new Font("Times New Roman", Font.ITALIC, 18));
+        botonRuta.setBounds(0, 10, 100, 50);
         botonRuta.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Lógica para calcular rutas
+                
                 ACO aco = new ACO(grafo, 50, 200, 4, 1, 0.64, 0.005, panelMapa);
+                
+                // Instrucciones para tomar el la ciudad de origen
+                String origenC = MenuCiudades.getSelectedItem().toString();
+                aco.setCiudadInicial(origenC);
+                
                 Hormiga mejorHormiga = aco.ACO();
-                System.out.println(aco.imprimirMejorRuta(mejorHormiga));
-
+                
+                // Instrucciones para imprimir la ruta de forma escrita
+                texto= aco.imprimirMejorRuta(mejorHormiga);
+                imprimirRuta("Ciudad de origen: " + origenC + "\n"+ texto);
+                
                 panelMapa.repaint();
             }
         });
-        panelOpciones.add(botonRuta, BorderLayout.EAST);
-
+        panelOpciones.add(botonRuta);
+        
+        // Etiqueta para imprimir la ruta
+        String texto = "~ La ruta más corta encontrada es: \n \n"
+                       + "Ciudad de origen -> \n"
+                       + "->\n->\n->\n->\n->\n->\n->\n-> \n"
+                       + "->\n->\n->\n->\n->\n->\n->\n-> \n"
+                       + "->\n->\n->\n"
+                       + "-> Ciudad de origen.";
+        imprimirRuta(texto);
+        
         this.add(panelOpciones, BorderLayout.EAST);
     }
+    
+    private void imprimirRuta(String texto){
+//        RutaDetallada = new JTextArea();
+        RutaDetallada.setBounds(0,10, 300, 400);
+        RutaDetallada.setPreferredSize(new Dimension(250, 400));
+        RutaDetallada.setText(texto);
+        RutaDetallada.setFont(new Font("times new roman", Font.CENTER_BASELINE, 14));
+        RutaDetallada.setForeground(Color.BLACK);
+//        RutaDetallada.setEnabled(false);
+        panelOpciones.add(RutaDetallada); 
+    }
+    
+//    private String StrtoHtml(String texto){
+//        String cadena = texto.replace("\n", "<br>");
+//        return "<html><p>" + cadena + "</p></html>";
+//    }
 
 }
