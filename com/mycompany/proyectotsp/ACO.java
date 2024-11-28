@@ -91,4 +91,45 @@ public class ACO {
 
         return retorno;
     }
+    
+    public Grafo getGrafo() {
+        return grafo;
+    }
+
+    public void setGrafo(Grafo grafo) {
+        this.grafo = grafo;
+    }
+
+    public int getCantidadHormigas() {
+        return cantidadHormigas;
+    }
+
+    public void setCantidadHormigas(int cantidadHormigas) {
+        this.cantidadHormigas = cantidadHormigas;
+    }
+
+    public int getRepeticiones() {
+        return repeticiones;
+    }
+
+    public void setRepeticiones(int repeticiones) {
+        this.repeticiones = repeticiones;
+    }
+
+    public JPanel getPanelMapa() {
+        return panelMapa;
+    }
+
+    public void setPanelMapa(JPanel panelMapa) {
+        this.panelMapa = panelMapa;
+    }
+
+    public String getCiudadInicial() {
+        return ciudadInicial;
+    }
+
+    public void setCiudadInicial(String ciudadInicial) {
+        this.ciudadInicial = ciudadInicial;
+    }
+    
 }
