@@ -1,0 +1,55 @@
+import javax.naming.ldap.HasControls;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
+public class LeerCSV {
+    public HashMap<String,Ccity> leerCSV(){
+    //public static void main(String[] args) {
+        //La cadena debe de ser el nombre del archivo como lo tengan guardado
+        //Se pone la cadena como parametro de FileReader
+        HashMap<String, Ccity> cities = new HashMap<>();
+        try(BufferedReader bf = new BufferedReader(new FileReader("matriz_adyacencia_estados1.csv"))){
+            String linea;
+            String[] ciudadesName = new String[53] ;
+            //IMPORTANTE la posicion 0 de ciudades name no tiene nada
+            linea=bf.readLine();
+            ciudadesName = linea.split(",");
+            ArrayList<Ccity> citiesList = new ArrayList<>();
+            //La posicion 0 de citiesList no tiene una ciudad
+            for (String nombre : ciudadesName){
+                Ccity city = new Ccity(nombre);
+                citiesList.add(city);
+                cities.put(nombre, city);
+            }
+
+            String linea2;
+            while((linea2 = bf.readLine())!= null ){
+                String[] conexiones = linea2.split(",");
+                    Ccity ciudad = cities.get(conexiones[0]);
+                for(int i =1; i<conexiones.length; i++){
+                    if (Double.parseDouble(conexiones[i])!= 0 ) {
+                       double peso=Double.parseDouble(conexiones[i]);
+                       Ccity conexion = citiesList.get(i);
+                       ciudad.agregarConexion(conexion,peso,true);
+                    }
+                }
+
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        /*
+        * Utilizado para comprobar que se generen las ciudades de forma correcta
+        Collection arrciudades =  cities.values();
+        for (Object nuevaCiudad : arrciudades) {
+            Ccity newCity = (Ccity)nuevaCiudad;
+            System.out.println(newCity.getDistancias());
+        }*/
+        return cities;
+    }
+}
