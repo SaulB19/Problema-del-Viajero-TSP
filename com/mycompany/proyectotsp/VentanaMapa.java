@@ -126,7 +126,7 @@ public class VentanaMapa extends JFrame {
                 // Lógica para calcular rutas
                 ACO aco = new ACO(grafo, 50, 200, 4, 1, 0.64, 0.005, panelMapa);
                 Hormiga mejorHormiga = aco.ACO();
-                aco.imprimirMejorRuta(mejorHormiga);
+                System.out.println(aco.imprimirMejorRuta(mejorHormiga));
 
                 panelMapa.repaint();
             }

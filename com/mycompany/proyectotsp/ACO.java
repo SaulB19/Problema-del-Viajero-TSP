@@ -73,18 +73,22 @@ public class ACO {
      * grafo.EvaporarFeromonas();
      * }
      */
-    public void imprimirMejorRuta(Hormiga hormiga) {
+    public String imprimirMejorRuta(Hormiga hormiga) {
         if (hormiga == null) {
-            System.out.println("Ninguna hormiga recorrio el mapa completo");
-            return;
+            return "Ninguna hormiga recorrio el mapa completo";
         }
+
+        String retorno = "";
+
         ArrayList<Ccity> ruta = hormiga.getRuta();
-        System.out.println("La ruta mas corta encontrada es:");
+        retorno += "La ruta mas corta encontrada es:\n";
         for (Ccity ciudad : ruta) {
-            System.out.print(ciudad);// imprime la ciudad
-            System.out.print("-->");
+            retorno += ciudad.toString();
+            retorno += "-->";
         }
-        System.out.print(ruta.get(0));
-        System.out.println("\n El peso del recorrido es: " + hormiga.pesoRecorrido());
+        retorno += ruta.get(0).toString() + "\n";
+        retorno += "El peso del recorrido es: " + hormiga.pesoRecorrido();
+
+        return retorno;
     }
 }
