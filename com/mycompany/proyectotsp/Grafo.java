@@ -3,16 +3,16 @@ package com.mycompany.proyectotsp;
 import java.util.ArrayList;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Grafo {
     // Parametros iniciales
-    private final int alpha;
-    private final int beta;
-    private final double evaporacion;
-    private final double minimaFeromona;
+    private int alpha;
+    private int beta;
+    private double evaporacion;
+    private double minimaFeromona;
     private int ciudadesCantidad;
     private Map<String, Ccity> ciudades;// Contiene las ciudades del grafo
     private Map<String, double[]> posiciones = new HashMap<>(); // LLeva el seguimiento de las posiciones graficas de
@@ -38,72 +38,56 @@ public class Grafo {
         return ciudadesCantidad;
     }
 
-    public Grafo(int alpha, int beta, double evaporacion, double minimaFeromona) {
-        this.alpha = alpha;
-        this.beta = beta;
-        this.evaporacion = evaporacion;
-        this.minimaFeromona = minimaFeromona;
-        // ciudadesG=new HashMap<>();
+    public Grafo() {
+        ciudades = new HashMap<>();
+        // La cadena debe de ser el nombre del archivo como lo tengan guardado
+        // Se pone la cadena como parametro de FileReader
 
-        crearGrafo();
-    }
-
-    private void crearGrafo() {
-        // TODO: Realizar el procesamiento del .json en Java y no en python
-        try (BufferedReader reader = leerMatriz()) {
-            String linea = reader.readLine();
-            String[] encabezados = linea.split(",");
-
-            ciudades = new HashMap<>();
-            for (String ciudad : encabezados) {
-                if (ciudad != "") {
-                    ciudades.put(ciudad, new Ccity(ciudad));
+        try (BufferedReader bf = new BufferedReader(new FileReader("matriz_adyacencia_estados1.csv"))) {
+            String linea;
+            String[] ciudadesName = new String[53];
+            // IMPORTANTE la posicion 0 de ciudades name no tiene nada
+            linea = bf.readLine();
+            ciudadesName = linea.split(",");
+            ArrayList<Ccity> citiesList = new ArrayList<>();
+            // La posicion 0 de citiesList no tiene una ciudad
+            for (String nombre : ciudadesName) {
+                Ccity city = new Ccity(nombre);
+                citiesList.add(city);
+                if (nombre == "") {
+                    continue;
                 }
+                ciudades.put(nombre, city);
             }
-            ciudadesCantidad = ciudades.size();
 
-            for (int i = 0; i < encabezados.length - 1; i++) {
-                linea = reader.readLine();
+            ciudadesCantidad = citiesList.size();
 
-                String[] datosNodo = linea.split(",");
-
-                Ccity origen = ciudades.get(datosNodo[0]);
-
-                for (int j = 1; j < datosNodo.length; j++) {
-                    Ccity destino = ciudades.get(encabezados[j]);
-
-                    String[] datosEnlace = datosNodo[j].split(";");
-
-                    float distancia = Float.parseFloat(datosEnlace[0]);
-                    boolean hayEnlace = Boolean.parseBoolean(datosEnlace[1]);
-
-                    origen.agregarConexion(destino, distancia, hayEnlace);
+            String linea2;
+            while ((linea2 = bf.readLine()) != null) {
+                String[] conexiones = linea2.split(",");
+                Ccity ciudad = ciudades.get(conexiones[0]);
+                for (int i = 1; i < conexiones.length; i++) {
+                    double peso = Double.parseDouble(conexiones[i]);
+                    if (peso != 0) {
+                        Ccity conexion = citiesList.get(i);
+                        ciudad.agregarConexion(conexion, peso);
+                    }
                 }
+
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         inicializarPosiciones();
     }
 
-    // TODO: Realizar el procesamiento del .json en Java y no en python
-    private BufferedReader leerMatriz() {
-        BufferedReader salida = null;
-
-        try {
-            // TODO: Usar la formula de Haversine para calcular la distancia en lugar del teorema de Pitagoras
-            ProcessBuilder pb = new ProcessBuilder("python3", "solucionTemporal/leerJSON.py");
-
-            Process process = pb.start();
-
-            // Lee la salida estandar del script, que tiene formato de csv
-            salida = process.inputReader();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return salida;
+    public void crearGrafo(int alpha, int beta, double evaporacion, double minimaFeromona) {
+        this.alpha = alpha;
+        this.beta = beta;
+        this.evaporacion = evaporacion;
+        this.minimaFeromona = minimaFeromona;
     }
 
     private void inicializarPosiciones() {
@@ -119,7 +103,8 @@ public class Grafo {
                 "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico",
         };
 
-        // TODO: Reajustar las posiciones en pantalla de los nodos de las ciudades, o calcularlas dinamicamente
+        // TODO: Reajustar las posiciones en pantalla de los nodos de las ciudades, o
+        // calcularlas dinamicamente
         double[][] coordenadas = {
                 { 516, 548 }, { 92, 660 }, { 150, 484 }, { 430, 496 }, { 48, 372 },
                 { 248, 366 }, { 676, 244 }, { 650, 326 }, { 628, 330 }, { 606, 672 },
@@ -144,18 +129,46 @@ public class Grafo {
     }
 
     /*
-     * Actualiza las feromonas unicamente del mejor recorrido
+     * Actualiza las feromonas unicamente del mejor recorrido, o disminuye las de un
+     * camino si salida
      */
     public void actualizarferomonas(Hormiga hormiga) {
+        if (hormiga == null) {
+            return;
+        }
+
         Ccity puntoa = null;
         Ccity puntob = null;
         ArrayList<Ccity> ciudades = hormiga.getRuta();
+        if (!hormiga.estaViva()) {
+            Ccity anterior = null;
+
+            for (Ccity ciudad : hormiga.getRuta()) {
+                if (anterior == null) {
+                    anterior = ciudad;
+                    continue;
+                }
+
+                double feromonas = anterior.getFeromonas(ciudad);
+                feromonas /= 2;
+
+                if (feromonas < minimaFeromona) {
+                    anterior.setFeromonas(ciudad, minimaFeromona);
+                } else {
+                    anterior.setFeromonas(ciudad, feromonas);
+                }
+
+                anterior = ciudad;
+            }
+
+            return;
+        }
         /*
          * Pseudocodigo
          * Aumentar la cantidad de feromonas de la siguiente manera:
          * "feromonas += 1 / costo_del_recorrido"
          */
-        double feromonasAgregadas = 1 / hormiga.pesoRecorrido();
+        double feromonasAgregadas = 10 / hormiga.pesoRecorrido();
         for (int i = 0; i < ciudades.size(); i++) {
             // Va regresando la ciudad y su siguiente
             puntoa = ciudades.get(i);
@@ -186,10 +199,7 @@ public class Grafo {
         // variacion
         // Evapora las feromonas para cada ciudad del grafo
         for (Ccity c : ciudades.values()) {
-            for (Ccity temp : ciudades.values()) {
-                if (!c.contiene(temp)) {
-                    continue;
-                }
+            for (Ccity temp : c.getDistancias().keySet()) {
 
                 double newFeromona = c.getFeromonas(temp) * (1 - evaporacion);
                 /*

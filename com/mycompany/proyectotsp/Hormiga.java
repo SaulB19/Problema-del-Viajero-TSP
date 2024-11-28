@@ -1,7 +1,5 @@
 package com.mycompany.proyectotsp;
 
-import java.awt.IllegalComponentStateException;
-
 import java.util.*;
 
 public class Hormiga {
@@ -17,15 +15,18 @@ public class Hormiga {
 
     private Ccity inicio;
 
+    private boolean estaViva;
+
     public Hormiga(Grafo grafo, Ccity ciudadInicial) {
         this.grafo = grafo;
+        estaViva = true;
         inicio = ciudadInicial;
 
         ruta = new ArrayList<>();
         // yaFueoNo = new HashSet<>();
         noHaIdo = new ArrayList<>();
 
-        crearCiudadesNoVisitadas();
+        CiudadesNoVisitadas();
     }
 
     public ArrayList<Ccity> getRuta() {
@@ -33,55 +34,10 @@ public class Hormiga {
     }
 
     // Agrega al arreglo todas las ciudades para saber cuales no han sido visitadas
-    public void crearCiudadesNoVisitadas() {
-        // Si no hay ninguna ciudad inicial especifica, agrega todos los nodos y
-        // verifica que todos esten conectados
-        if (inicio == null) {
-            noHaIdo = explorarNodos(VerticeRandom());
-            for (Ccity ciudad : grafo.getCiudades().values()) {
-                if (!noHaIdo.contains(ciudad)) {
-                    throw new IllegalArgumentException("Ninguna ciudad ha sido visitada. Agregar ciudad inicial");
-                }
-            }
-
-            return;
+    public void CiudadesNoVisitadas() {
+        for (Ccity ciudad : grafo.getCiudades().values()) {
+            noHaIdo.add(ciudad);
         }
-
-        noHaIdo = explorarNodos(inicio);
-    }
-
-    private ArrayList<Ccity> explorarNodos(Ccity inicial) {
-        ArrayList<Ccity> nodosEncontrados = new ArrayList<>();
-        nodosEncontrados.add(inicial);
-
-        HashMap<Ccity, Boolean> yaExplorados = new HashMap<>();
-        for (Ccity ccity : grafo.getCiudades().values()) {
-            yaExplorados.put(ccity, false);
-        }
-        yaExplorados.put(inicial, true);
-
-        Stack<Ccity> pila = new Stack<>();
-        pila.push(inicial);
-
-        while (!pila.isEmpty()) {
-            Ccity actual = pila.pop();
-
-            for (Map.Entry<Ccity, Boolean> item : actual.getEnlaces().entrySet()) {
-                Ccity siguiente = item.getKey();
-                boolean estanEnlazadas = item.getValue();
-
-                if (!estanEnlazadas || yaExplorados.get(siguiente)) {
-                    continue;
-                }
-
-                pila.push(siguiente);
-                yaExplorados.put(siguiente, true);
-                nodosEncontrados.add(siguiente);
-            }
-
-        }
-
-        return nodosEncontrados;
     }
 
     // Este metodo sirve para elegir la ciudad de inicio de la hormiga
@@ -123,26 +79,29 @@ public class Hormiga {
 
     /*
      * Obtiene el recorrido de la hormiga basandose en las probabilidades
+     * Regresa true si logra finalizar el recorrido, de lo contrario regresa false
      */
-    public void viajar() {
+    public boolean viajar() {
         if (inicio == null)
             inicio = VerticeRandom();
 
         noHaIdo.remove(inicio);// quita de las que faltan por visitar
         Ccity actual = inicio;
+        ruta.add(inicio);
         /*
          * Cuando no ha ido esta vacio significa que ya se han recorrido todas las
          * ciudades
          */
-
-        // TODO: (imporate) Resolver el problema de los callejones sin salida
-        // Las hormigas no pueden pasar 2 veces por el mismo nodo. Si una hormiga llega
-        // a un nodo cuyos enlaces ya han sido todos explorados anteriormente, la
-        // hormiga ya no puede moverse a ningun otro nodo. 
         while (!noHaIdo.isEmpty()) {// siempre que no ha ido no este vacia
             double random = Math.random();// genera un numero del 0 al 1
 
             Map<Ccity, Double> probabilidades = probabilidadDeIr(actual);
+
+            if (probabilidades.isEmpty())
+            {
+                estaViva = false;
+                return false;
+            }
 
             for (Map.Entry<Ccity, Double> probabilidad : probabilidades.entrySet()) {
                 double sigCiudad = probabilidad.getValue();
@@ -152,11 +111,11 @@ public class Hormiga {
                     noHaIdo.remove(actual);
                     ruta.add(actual);
                     break; // sale del ciclo for y vuelve al while
-
                 }
             }
-
         }
+
+        return true;
     }
 
     /*
@@ -171,7 +130,7 @@ public class Hormiga {
 
         double sumatoriaDeseos = sumaDeseos(actual);
         for (Ccity siguiente : noHaIdo) {
-            if (actual.estaEnlazadaCon(siguiente)) {
+            if (actual.contiene(siguiente)) {
                 double probabilidad = deseo(actual, siguiente) / sumatoriaDeseos;
                 probabilidades.put(siguiente, probabilidad + acumulado);
 
@@ -186,7 +145,7 @@ public class Hormiga {
     public double sumaDeseos(Ccity actual) {
         double suma = 0;
         for (Ccity siguiente : noHaIdo) {
-            if (actual.estaEnlazadaCon(siguiente)) {
+            if (actual.contiene(siguiente)) {
                 suma += deseo(actual, siguiente);
             }
         }
@@ -198,10 +157,14 @@ public class Hormiga {
         double feromonas = actual.getFeromonas(siguiente);
         double valorHeuristico = 1 / actual.getDistancia(siguiente);
 
-        feromonas = Math.pow(feromonas, grafo.getAlpha());
-        valorHeuristico = Math.pow(valorHeuristico, grafo.getBeta());
+        feromonas = Math.pow(feromonas * 100, grafo.getAlpha());
+        valorHeuristico = Math.pow(valorHeuristico * 100, grafo.getBeta());
 
         return feromonas * valorHeuristico;
+    }
+
+    public boolean estaViva() {
+        return estaViva;
     }
 
 }

@@ -9,7 +9,6 @@ public class Ccity implements Iterator<Ccity> {
     private HashMap<Ccity, Double> distancias;
     // Hashmap clave ciudad guarda booleano que indica si las ciudades estan
     // conectadas
-    private HashMap<Ccity, Boolean> enlacesExistentes;
     // Hashmap clave ciudad guarda feromonas desde esta ciudad
     private HashMap<Ccity, Double> feromonas;
     // Hashmap clave, ciudad con la que conecta
@@ -20,15 +19,13 @@ public class Ccity implements Iterator<Ccity> {
     public Ccity(String nombre) {
         this.nombre = nombre;
         distancias = new HashMap<>();
-        enlacesExistentes = new HashMap<>();
         feromonas = new HashMap<>();
         temporal = new HashMap<>();
     }
 
     // Metodo que agrega una conexion desde esta ciudad a otra (con el peso)
-    public void agregarConexion(Ccity newCity, double distancia, boolean hayEnlace) {
+    public void agregarConexion(Ccity newCity, double distancia) {
         distancias.put(newCity, distancia);
-        enlacesExistentes.put(newCity, hayEnlace);
 
         // Cada que agrega una nueva conexion inicializa la ruta con un nivel de
         // feromonas
@@ -37,9 +34,14 @@ public class Ccity implements Iterator<Ccity> {
         temporal.put(newCity, 0.0);
     }
 
+    // Metodo que regresa el peso conociendo la ciudad
+    public double GetpesoCiudad(Ccity newCity) {
+        return distancias.get(newCity);
+    }
+
     // Metodo que nos dice si podemos ir a otra ciudad desde esta
     public boolean contiene(Ccity newCity) {
-        return enlacesExistentes.get(newCity);
+        return distancias.containsKey(newCity);
     }
 
     public int CantidadCiudades() {
@@ -62,8 +64,8 @@ public class Ccity implements Iterator<Ccity> {
         return temporal.get(ciudad);
     }
 
-    public HashMap<Ccity, Boolean> getEnlaces() {
-        return enlacesExistentes;
+    public HashMap<Ccity, Double> getDistancias() {
+        return distancias;
     }
 
     public double getDistancia(Ccity destino) {
@@ -87,9 +89,5 @@ public class Ccity implements Iterator<Ccity> {
 
     public String getNombre() {
         return nombre;
-    }
-
-    public boolean estaEnlazadaCon(Ccity posible) {
-        return enlacesExistentes.get(posible);
     }
 }

@@ -1,106 +1,117 @@
-/* En esta ventana habrá una introducción para que el usuario escoja las opciones del programa*/
-
 package com.mycompany.proyectotsp;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-import java.awt.*;
-import javax.swing.*;
-
-import java.awt.image.BufferedImage;
-
-// TODO: Mover el contenido de esta clase a VentanaMapa y adaptarlo
 public class VentanaBienvenida extends JFrame {
-
-    private Grafo grafo;
-    private BufferedImage fondo;
+    public JPanel panelPrincipal;
+    public JLabel Presentacion, ImagenNodoIzq, ImagenBrujula;
+    public JButton BotonMapa, BotonPresentacion;
 
     public VentanaBienvenida() {
-
-        setTitle("Visualización de Grafo");
-        setSize(800, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel panel = new GrafoPanel();
-
-        add(panel);
-
-        grafo = new Grafo(1, 1, 0.5, 0.5);
+        setDefaultCloseOperation(EXIT_ON_CLOSE); // Finalizamos el programa al cerrar la ventana
+        setTitle("Problema del Viajante(TSP)"); // Título de la ventana
+        setSize(1200, 600); // Tamaño (Ancho, Alto)
+        setLocationRelativeTo(null); // Fija la ventana al centro
+        iniciarMenu();
     }
 
-    // TODO: Adaptar fondo para que se reajuste al tamaño de la ventana
-    private void cargarFondo() {
-        try {
-            fondo = javax.imageio.ImageIO.read(new File("imagenes/mapaEUA.jpg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // Este metodo resume las instrucciones para crear la ventana
+    private void iniciarMenu() {
+        colocarPanel();
+        colocarOpciones();
     }
 
-    private class GrafoPanel extends JPanel {
-        // TODO: Adaptar fondo para que se reajuste al tamaño de la ventana
-        public GrafoPanel() {
-            cargarFondo();
-        }
+    // Se implementa el panel donde se va a trabajar
+    // No requerimos de un layout específico
+    private void colocarPanel() {
+        panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(null);
+        panelPrincipal.setBackground(Color.DARK_GRAY);
+        this.add(panelPrincipal);
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g;
+    }
 
-            if (fondo != null) {
-                g2.drawImage(fondo, 0, 0, 800, 800, null);
+    // Coloca los elementos para el panel
+    private void colocarOpciones() {
+        // Etiqueta de imagen como referencia
+        Presentacion = new JLabel();
+        Presentacion.setBounds(275, 50, 600, 200);
+        ImageIcon imagenP = new ImageIcon("BienvenidaTSP.png");
+        Presentacion.setIcon(new ImageIcon(imagenP.getImage().getScaledInstance(Presentacion.getWidth(),
+                Presentacion.getHeight(), Image.SCALE_SMOOTH)));
+        panelPrincipal.add(Presentacion);
+
+        // Imagen decoracion 1
+        ImagenNodoIzq = new JLabel();
+        ImagenNodoIzq.setBounds(45, 150, 150, 250);
+        ImageIcon imagenNIzq = new ImageIcon("NodoIzq.png");
+        ImagenNodoIzq.setIcon(new ImageIcon(imagenNIzq.getImage().getScaledInstance(ImagenNodoIzq.getWidth(),
+                ImagenNodoIzq.getHeight(), Image.SCALE_SMOOTH)));
+        panelPrincipal.add(ImagenNodoIzq);
+
+        // Imagen decoracion 2
+        ImagenBrujula = new JLabel();
+        ImagenBrujula.setBounds(900, 200, 250, 150);
+        ImageIcon imagenBru = new ImageIcon("Brujula.png");
+        ImagenBrujula.setIcon(new ImageIcon(imagenBru.getImage().getScaledInstance(ImagenBrujula.getWidth(),
+                ImagenBrujula.getHeight(), Image.SCALE_SMOOTH)));
+        panelPrincipal.add(ImagenBrujula);
+
+        // Botón para conocer el progama o tutorial
+        BotonPresentacion = new JButton();
+        BotonPresentacion.setText("¿Qué es el TSP?");
+        BotonPresentacion.setBounds(275, 300, 600, 100);
+        BotonPresentacion.setFont(new Font("times new roman", Font.ITALIC, 36));
+        abrirPresentacion();
+        panelPrincipal.add(BotonPresentacion);
+
+        // Botón para iniciar el mapa
+        BotonMapa = new JButton();
+        BotonMapa.setText("Abrir mapa! :D");
+        BotonMapa.setBounds(275, 425, 600, 100);
+        BotonMapa.setFont(new Font("times new roman", Font.ITALIC, 36));
+        abrirMapa();
+        panelPrincipal.add(BotonMapa);
+    }
+
+    // Este metodo asigna un evento al BotonPresentacion, el cual es dirigir a una
+    // introduccion
+    // pero en una ventana nueva
+    private void abrirPresentacion() {
+        ActionListener intro = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VentanaPresentacion venP = new VentanaPresentacion();
+                venP.setVisible(true);
+                // setVisible(false);
             }
+        };
+        BotonPresentacion.addActionListener(intro);
+    }
 
-            dibujarEnlaces(g2);
-            dibujarNodos(g2);
-        }
+    // Este metodo asigna un evento al BotonMapa, el cual es crear
+    // una ventana con el mapa del ejercicio
+    private void abrirMapa() {
+        ActionListener mapa = new ActionListener() {
 
-        private void dibujarNodos(Graphics2D g) {
-            g.setFont(new Font("Arial", Font.PLAIN, 10));
-            g.setColor(Color.BLACK);
-
-            for (Map.Entry<String, double[]> entry : grafo.getPosiciones().entrySet()) {
-                String nodo = entry.getKey();
-                double[] coordenadas = entry.getValue();
-                int x = (int) coordenadas[0];
-                int y = (int) coordenadas[1];
-
-                g.fillOval(x - 10, y - 10, 20, 20);
-                g.setColor(Color.BLACK);
-                g.drawOval(x - 10, y - 10, 20, 20);
-                g.drawString(nodo, x, y - 15);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VentanaMapa venT = new VentanaMapa();
+                venT.setVisible(true);
+                setVisible(false);
             }
-        }
-
-        // TODO: Reemplazar este codigo para que se dibujen intuitivamente las feromonas en los enlaces
-        private void dibujarEnlaces(Graphics2D g) {
-            g.setColor(Color.BLACK);
-
-            for (Map.Entry<String, Ccity> entry : grafo.getCiudades().entrySet()) {
-                String origen = entry.getKey();
-                Ccity nodoOrigen = entry.getValue();
-                double[] origenCoordenadas = grafo.getPosiciones().get(origen);
-
-                for (Map.Entry<Ccity, Boolean> enlace : nodoOrigen.getEnlaces().entrySet()) {
-                    // Dibujar solo los enlaces existentes en la matriz de adyacencia
-                    if (!enlace.getValue()) {
-                        continue;
-                    }
-
-                    Ccity destino = enlace.getKey();
-                    double[] destinoCoordenadas = grafo.getPosiciones().get(destino.getNombre());
-
-                    g.drawLine((int) origenCoordenadas[0], (int) origenCoordenadas[1], (int) destinoCoordenadas[0],
-                            (int) destinoCoordenadas[1]);
-
-                    double mitadX = (origenCoordenadas[0] + destinoCoordenadas[0]) / 2;
-                    double mitadY = (origenCoordenadas[1] + destinoCoordenadas[1]) / 2;
-                    g.drawString(String.format("%.2f", nodoOrigen.getDistancia(destino)), (int) mitadX, (int) mitadY);
-                }
-            }
-        }
+        };
+        BotonMapa.addActionListener(mapa);
     }
 }
