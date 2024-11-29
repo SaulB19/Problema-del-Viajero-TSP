@@ -14,7 +14,7 @@ public class ACO {
 
     private Thread hilo;
 
-    Hormiga mejorHormiga = null;
+    private Hormiga mejorHormiga = null;
 
     // TODO: Cambiar esto para que el usuario eliga su ciudad inicial, o null en
     // caso de no haber
@@ -75,6 +75,14 @@ public class ACO {
             }
         }
         return mejorHormiga;
+    }
+
+    public ArrayList<Ccity> getMejorRuta() {
+        if (mejorHormiga == null) {
+            return null;
+        }
+        
+        return mejorHormiga.getRuta();
     }
 
     /*

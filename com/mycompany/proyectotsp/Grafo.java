@@ -120,7 +120,7 @@ public class Grafo {
         };
 
         for (int i = 0; i < ciudades.length; i++) {
-            posiciones.put(ciudades[i], coordenadas[i]);
+            posiciones.put(ciudades[i], new double[] { coordenadas[i][0] / 800, coordenadas[i][1] / 800 });
         }
     }
 
@@ -216,7 +216,7 @@ public class Grafo {
     public void reiniciarFeromonas() {
         for (Ccity origen : ciudades.values()) {
             for (Ccity destino : origen.getDistancias().keySet()) {
-                origen.setFeromonas(destino, 1.0);
+                origen.setFeromonas(destino, 0.4);
             }
         }
     }

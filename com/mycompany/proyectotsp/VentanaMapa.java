@@ -3,6 +3,7 @@ package com.mycompany.proyectotsp;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
 
@@ -54,12 +55,18 @@ public class VentanaMapa extends JFrame {
                 g.setFont(new Font("times new roman", Font.PLAIN, 8));
                 g.setColor(Color.BLACK);
 
+                int anchoActual = getWidth();
+                int altoActual = getHeight();
+
                 for (Map.Entry<String, double[]> entry : grafo.getPosiciones().entrySet()) {
                     String nodo = entry.getKey();
-                    double[] coordenadas = entry.getValue();
-                    int x = (int) coordenadas[0];
-                    int y = (int) coordenadas[1];
+                    double[] coordenadasRelativas = entry.getValue();
 
+                    // Convertir coordenadas relativas a absolutas
+                    int x = (int) (coordenadasRelativas[0] * anchoActual);
+                    int y = (int) (coordenadasRelativas[1] * altoActual);
+
+                    // Dibujar el nodo
                     g.fillOval(x - 6, y - 6, 12, 12);
                     g.setColor(Color.BLACK);
                     g.drawOval(x - 6, y - 6, 12, 12);
@@ -68,31 +75,58 @@ public class VentanaMapa extends JFrame {
             }
 
             private void dibujarEnlaces(Graphics2D g) {
+                int anchoActual = getWidth();
+                int altoActual = getHeight();
+
                 for (Map.Entry<String, Ccity> entry : grafo.getCiudades().entrySet()) {
                     String origen = entry.getKey();
                     Ccity nodoOrigen = entry.getValue();
-                    double[] origenCoordenadas = grafo.getPosiciones().get(origen);
+                    double[] origenCoordenadasRelativas = grafo.getPosiciones().get(origen);
 
                     for (Map.Entry<Ccity, Double> enlace : nodoOrigen.getDistancias().entrySet()) {
                         Ccity destino = enlace.getKey();
-                        double[] destinoCoordenadas = grafo.getPosiciones().get(destino.getNombre());
+                        double[] destinoCoordenadasRelativas = grafo.getPosiciones().get(destino.getNombre());
 
-                        // Obtener la cantidad de feromonas
+                        // Convertir coordenadas relativas a absolutas
+                        int x1 = (int) (origenCoordenadasRelativas[0] * anchoActual);
+                        int y1 = (int) (origenCoordenadasRelativas[1] * altoActual);
+                        int x2 = (int) (destinoCoordenadasRelativas[0] * anchoActual);
+                        int y2 = (int) (destinoCoordenadasRelativas[1] * altoActual);
+
+                        // Dibujar línea con grosor proporcional a feromonas
                         double feromonas = nodoOrigen.getFeromonas(destino);
-
-                        // Ajustar el grosor del trazo basado en las feromonas
-                        float grosor = (float) (1 + feromonas * 5); // Ajusta el factor multiplicativo según sea
-                                                                    // necesario
+                        float grosor = (float) Math.min(4, feromonas * 255);
                         g.setStroke(new BasicStroke(grosor));
-
-                        // Establecer el color del enlace
-                        g.setColor(new Color(0, 0, 255, (int) Math.min(255, feromonas * 255))); // Azul con opacidad
-                                                                                                // proporcional
-
-                        // Dibujar la línea del enlace
-                        g.drawLine((int) origenCoordenadas[0], (int) origenCoordenadas[1],
-                                (int) destinoCoordenadas[0], (int) destinoCoordenadas[1]);
+                        g.setColor(new Color(150, 150, 255, (int) Math.min(255, feromonas * 255)));
+                        g.drawLine(x1, y1, x2, y2);
                     }
+                }
+
+                ArrayList<Ccity> mejorRuta;
+                if (aco == null || (mejorRuta = aco.getMejorRuta()) == null) {
+                    return;
+                }
+
+                Ccity anterior = mejorRuta.get(mejorRuta.size() - 1);
+
+                for (Ccity ciudad : aco.getMejorRuta()) {
+                    double[] anteriorCoordenadas = grafo.getPosiciones().get(anterior.getNombre());
+                    double[] ciudadCoordenadas = grafo.getPosiciones().get(ciudad.getNombre());
+
+                    int x1 = (int) (anteriorCoordenadas[0] * anchoActual);
+                    int y1 = (int) (anteriorCoordenadas[1] * altoActual);
+                    int x2 = (int) (ciudadCoordenadas[0] * anchoActual);
+                    int y2 = (int) (ciudadCoordenadas[1] * altoActual);
+
+                    float grosor = 2;
+
+                    g.setStroke(new BasicStroke(grosor));
+
+                    g.setColor(new Color(0, 0, 0));
+
+                    g.drawLine(x1, y1, x2, y2);
+
+                    anterior = ciudad;
                 }
             }
         };
@@ -168,6 +202,7 @@ public class VentanaMapa extends JFrame {
                 texto = aco.imprimirMejorRuta();
                 imprimirRuta("Ciudad de origen: " + aco.getCiudadInicial() + "\n" + texto);
 
+                botonRuta.setText("Recalcular ruta");
                 botonRuta.setVisible(true);
                 botonDetener.setVisible(false);
             }
@@ -187,9 +222,9 @@ public class VentanaMapa extends JFrame {
     }
 
     private void imprimirRuta(String texto) {
-//        // RutaDetallada = new JTextArea();
-//        RutaDetallada.setBounds(0, 10, 300, 400);
-//        RutaDetallada.setPreferredSize(new Dimension(300, 400));
+        // // RutaDetallada = new JTextArea();
+        // RutaDetallada.setBounds(0, 10, 300, 400);
+        // RutaDetallada.setPreferredSize(new Dimension(300, 400));
         RutaDetallada.setText(textoOrdenado(texto));
         RutaDetallada.setFont(new Font("times new roman", Font.CENTER_BASELINE, 12));
         RutaDetallada.setForeground(Color.BLACK);
@@ -198,8 +233,8 @@ public class VentanaMapa extends JFrame {
         panelOpciones.add(cajaTexto);
     }
 
-    private String textoOrdenado(String texto){
-    String cadena = texto.replace( "->", "->\n");
+    private String textoOrdenado(String texto) {
+        String cadena = texto.replace("->", "->\n");
         return cadena;
     }
 
