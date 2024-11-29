@@ -40,13 +40,19 @@ public class ACO {
                 }
 
                 // paso 2: encontrar la mejor hormiga
-                mejorHormiga = ObtenerMejorHormiga(hormigas);
+                Hormiga mejorHormigaLocal = ObtenerMejorHormiga(hormigas);
 
                 // paso 3: evaporar y actualizar feromonas
                 grafo.EvaporarFeromonas(); // Evapora las feromonas
-                grafo.actualizarferomonas(mejorHormiga); // Actualiza las feromonas de la mejor hormiga
+                grafo.actualizarferomonas(mejorHormigaLocal); // Actualiza las feromonas de la mejor hormiga
 
                 panelMapa.repaint();
+
+                if (mejorHormigaLocal != null) {
+                    if (mejorHormiga == null || mejorHormigaLocal.pesoRecorrido() < mejorHormiga.pesoRecorrido()) {
+                        mejorHormiga = mejorHormigaLocal;
+                    }
+                }
             }
         });
     }
