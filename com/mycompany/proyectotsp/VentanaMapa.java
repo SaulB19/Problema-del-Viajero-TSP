@@ -10,9 +10,11 @@ public class VentanaMapa extends JFrame {
     private JPanel panelMapa, panelOpciones;
     private JComboBox<String> MenuCiudades;
     private JButton botonRuta;
+    private JButton botonDetener;
     private JTextArea RutaDetallada = new JTextArea();
     private String texto;
     private Grafo grafo;
+    private ACO aco;
 
     public VentanaMapa() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -65,25 +67,30 @@ public class VentanaMapa extends JFrame {
             }
 
             private void dibujarEnlaces(Graphics2D g) {
-                g.setColor(Color.BLACK);
-
                 for (Map.Entry<String, Ccity> entry : grafo.getCiudades().entrySet()) {
                     String origen = entry.getKey();
                     Ccity nodoOrigen = entry.getValue();
                     double[] origenCoordenadas = grafo.getPosiciones().get(origen);
 
-                    // TODO: dibujar los enlaces de manera que representen la cantidad de feromonas
                     for (Map.Entry<Ccity, Double> enlace : nodoOrigen.getDistancias().entrySet()) {
                         Ccity destino = enlace.getKey();
                         double[] destinoCoordenadas = grafo.getPosiciones().get(destino.getNombre());
 
+                        // Obtener la cantidad de feromonas
+                        double feromonas = nodoOrigen.getFeromonas(destino);
+
+                        // Ajustar el grosor del trazo basado en las feromonas
+                        float grosor = (float) (1 + feromonas * 5); // Ajusta el factor multiplicativo según sea
+                                                                    // necesario
+                        g.setStroke(new BasicStroke(grosor));
+
+                        // Establecer el color del enlace
+                        g.setColor(new Color(0, 0, 255, (int) Math.min(255, feromonas * 255))); // Azul con opacidad
+                                                                                                // proporcional
+
+                        // Dibujar la línea del enlace
                         g.drawLine((int) origenCoordenadas[0], (int) origenCoordenadas[1],
                                 (int) destinoCoordenadas[0], (int) destinoCoordenadas[1]);
-
-                        double mitadX = (origenCoordenadas[0] + destinoCoordenadas[0]) / 2;
-                        double mitadY = (origenCoordenadas[1] + destinoCoordenadas[1]) / 2;
-                        g.drawString(String.format("%.2f", nodoOrigen.getFeromonas(destino) * 100),
-                                (int) mitadX, (int) mitadY);
                     }
                 }
             }
@@ -120,7 +127,7 @@ public class VentanaMapa extends JFrame {
         MenuCiudades.setFont(new Font("Times New Roman", Font.ITALIC, 18));
         MenuCiudades.setBounds(0, 10, 150, 50);
         panelOpciones.add(MenuCiudades);
-        
+
         // Botón para invocar el algoritmo
         botonRuta = new JButton();
         botonRuta.setText("Calcular ruta");
@@ -130,49 +137,68 @@ public class VentanaMapa extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Lógica para calcular rutas
-                ACO aco = new ACO(grafo, 50, 100, 1, 9, 0.01, 0.00005, panelMapa);
-                
+                aco = new ACO(grafo, 50, 1, 9, 0.01, 0.05, panelMapa);
+
                 // Instrucciones para tomar el la ciudad de origen
                 String origenC = MenuCiudades.getSelectedItem().toString();
                 aco.setCiudadInicial(origenC);
-                
-                Hormiga mejorHormiga = aco.ACO();
-                
-                // Instrucciones para imprimir la ruta de forma escrita
-                texto= aco.imprimirMejorRuta(mejorHormiga);
-                imprimirRuta("Ciudad de origen: " + origenC + "\n"+ texto);
-                
-                panelMapa.repaint();
+
+                aco.iniciar();
+
+                botonRuta.setVisible(false);
+                botonDetener.setVisible(true);
             }
         });
         panelOpciones.add(botonRuta);
-        
+
+        // Botón para invocar el algoritmo
+        botonDetener = new JButton();
+        botonDetener.setText("Detener");
+        botonDetener.setFont(new Font("Times New Roman", Font.ITALIC, 18));
+        botonDetener.setBounds(0, 10, 100, 50);
+        botonDetener.setVisible(false);
+        botonDetener.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Lógica para calcular rutas
+                aco.detener();
+
+                // Instrucciones para imprimir la ruta de forma escrita
+                texto = aco.imprimirMejorRuta();
+                imprimirRuta(texto);
+
+                botonRuta.setVisible(true);
+                botonDetener.setVisible(false);
+            }
+        });
+        panelOpciones.add(botonDetener);
+
         // Etiqueta para imprimir la ruta
         String texto = "~ La ruta más corta encontrada es: \n \n"
-                       + "Ciudad de origen -> \n"
-                       + "->\n->\n->\n->\n->\n->\n->\n-> \n"
-                       + "->\n->\n->\n->\n->\n->\n->\n-> \n"
-                       + "->\n->\n->\n"
-                       + "-> Ciudad de origen.";
+                + "Ciudad de origen -> \n"
+                + "->\n->\n->\n->\n->\n->\n->\n-> \n"
+                + "->\n->\n->\n->\n->\n->\n->\n-> \n"
+                + "->\n->\n->\n"
+                + "-> Ciudad de origen.";
         imprimirRuta(texto);
-        
+
         this.add(panelOpciones, BorderLayout.EAST);
     }
-    
-    private void imprimirRuta(String texto){
-//        RutaDetallada = new JTextArea();
-        RutaDetallada.setBounds(0,10, 300, 400);
+
+    private void imprimirRuta(String texto) {
+        // RutaDetallada = new JTextArea();
+        RutaDetallada.setBounds(0, 10, 300, 400);
         RutaDetallada.setPreferredSize(new Dimension(250, 400));
         RutaDetallada.setText(texto);
         RutaDetallada.setFont(new Font("times new roman", Font.CENTER_BASELINE, 14));
         RutaDetallada.setForeground(Color.BLACK);
-//        RutaDetallada.setEnabled(false);
-        panelOpciones.add(RutaDetallada); 
+        // RutaDetallada.setEnabled(false);
+        panelOpciones.add(RutaDetallada);
     }
-    
-//    private String StrtoHtml(String texto){
-//        String cadena = texto.replace("\n", "<br>");
-//        return "<html><p>" + cadena + "</p></html>";
-//    }
+
+    // private String StrtoHtml(String texto){
+    // String cadena = texto.replace("\n", "<br>");
+    // return "<html><p>" + cadena + "</p></html>";
+    // }
 
 }
