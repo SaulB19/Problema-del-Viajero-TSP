@@ -1,6 +1,8 @@
 package com.mycompany.proyectotsp;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 
 public class Hormiga {
     /*
@@ -9,32 +11,51 @@ public class Hormiga {
      * se debe agregar el peso de la primera
      */
     private ArrayList<Ccity> ruta;
+
     // Usado para indicar el grafo que recorre
     private Grafo grafo;
+
+    // Usado para indicar las ciudades a las que no ha ido
     private ArrayList<Ccity> noHaIdo;
 
+    // La ciudad inicial, o null para seleccionar una aleatoriamente
     private Ccity inicio;
 
+    // Usado para indicar si la hormiga no esta encerrada
     private boolean estaViva;
 
+    /**
+     * Metodo constructor
+     * 
+     * @param grafo         El grafo que va a recorrer
+     * @param ciudadInicial La ciudad en la que va a iniciar
+     */
     public Hormiga(Grafo grafo, Ccity ciudadInicial) {
         this.grafo = grafo;
         estaViva = true;
         inicio = ciudadInicial;
 
         ruta = new ArrayList<>();
-        // yaFueoNo = new HashSet<>();
+
         noHaIdo = new ArrayList<>();
 
-        CiudadesNoVisitadas();
+        ciudadesNoVisitadas();
     }
+
+    // --------------| Metodos Getter |-------------- //
 
     public ArrayList<Ccity> getRuta() {
         return ruta;
     }
 
+    public boolean getEstaViva() {
+        return estaViva;
+    }
+
+    // -------------| Metodos Publicos |------------- //
+
     // Agrega al arreglo todas las ciudades para saber cuales no han sido visitadas
-    public void CiudadesNoVisitadas() {
+    public void ciudadesNoVisitadas() {
         for (Ccity ciudad : grafo.getCiudades().values()) {
             noHaIdo.add(ciudad);
         }
@@ -120,11 +141,6 @@ public class Hormiga {
         return estaViva;
     }
 
-    /*
-     * probabilidades es un metodo que almacena en un hashmap la probabilidad de ir
-     * a cada ciudad
-     * La ciudad es la clave (para poder obtenerla) y la probabilidad es el dato
-     */
     class Par {
         public Ccity ciudad;
         public double probabilidad;
@@ -135,6 +151,11 @@ public class Hormiga {
         }
     }
 
+    /*
+     * probabilidades es un metodo que almacena en un hashmap la probabilidad de ir
+     * a cada ciudad
+     * La ciudad es la clave (para poder obtenerla) y la probabilidad es el dato
+     */
     public ArrayList<Par> probabilidadDeIr(Ccity actual) {
         ArrayList<Par> probabilidades = new ArrayList<>();
 
@@ -174,9 +195,4 @@ public class Hormiga {
 
         return feromonas * valorHeuristico;
     }
-
-    public boolean estaViva() {
-        return estaViva;
-    }
-
 }

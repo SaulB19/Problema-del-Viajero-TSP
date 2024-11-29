@@ -5,66 +5,140 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 public class ACO {
-    private Grafo grafo; // Mapa que se va a seguir
-    private int cantidadHormigas;// Se recomiendan las mimsmas que las ciudades
+    // Mapa que se va a seguir
+    private Grafo grafo;
 
+    // Se recomiendan las mimsmas que las ciudades
+    private int cantidadHormigas;
+
+    // Usado para redibujar el grafo
     private JPanel panelMapa;
 
-    private boolean pararAlgoritmo = false;
+    // Booleano que indica cuando el usuario presiona 'Detener'
+    private boolean detenerAlgoritmo = false;
 
     private Thread hilo;
 
     private Hormiga mejorHormiga = null;
 
-    // TODO: Cambiar esto para que el usuario eliga su ciudad inicial, o null en
-    // caso de no haber
-    private String ciudadInicial = null; // Si es null, escoje la ciudad inicial aleatoriamente para
-                                         // cada hormiga
+    private String ciudadInicial = null; // Si es null, escoje la ciudad inicial aleatoriamente
 
-    public ACO(Grafo grafo, int cantidadHormigas, int alpha, int beta, double evaporacion,
+    /**
+     * Metodo Constructor
+     */
+    public ACO(Grafo grafo, int alpha, int beta, double evaporacion,
             double minimaFeromona, JPanel p) {
-        this.cantidadHormigas = cantidadHormigas;
+
         this.grafo = grafo;
+        cantidadHormigas = grafo.getCiudadesCantidad();
         panelMapa = p;
+
         grafo.crearGrafo(alpha, beta, evaporacion, minimaFeromona);
 
-        hilo = new Thread(() -> { // Correr en un hilo separado
-            while (!pararAlgoritmo) {
-                // paso 1: generar las hormigas que se van a lanzar
-                Hormiga[] hormigas = new Hormiga[cantidadHormigas];
+        hilo = new Thread(() -> {
+            Hormiga[] hormigas = new Hormiga[cantidadHormigas];
+
+            while (!detenerAlgoritmo) {
                 for (int j = 0; j < cantidadHormigas; j++) {
-                    hormigas[j] = new Hormiga(grafo, grafo.getCiudades().get(ciudadInicial)); // crea la hormiga
-                    if (!hormigas[j].viajar()) { // hace viajar a la hormiga
-                        grafo.actualizarferomonas(hormigas[j]); // Disminuye las feromonas de los recorridos sin salida
+                    hormigas[j] = new Hormiga(grafo, grafo.getCiudades().get(ciudadInicial));
+
+                    // En caso de que la hormiga quede encerrada, disminuye las feromonas de su
+                    // camino
+                    if (!hormigas[j].viajar()) {
+                        grafo.actualizarferomonas(hormigas[j]);
                     }
                 }
 
-                // paso 2: encontrar la mejor hormiga
                 Hormiga mejorHormigaLocal = ObtenerMejorHormiga(hormigas);
 
-                // paso 3: evaporar y actualizar feromonas
-                grafo.EvaporarFeromonas(); // Evapora las feromonas
-                grafo.actualizarferomonas(mejorHormigaLocal); // Actualiza las feromonas de la mejor hormiga
+                grafo.EvaporarFeromonas();
+
+                // Aumenta las feromonas solo de la mejor hormiga
+                grafo.actualizarferomonas(mejorHormigaLocal);
 
                 panelMapa.repaint();
 
-                if (mejorHormigaLocal != null) {
-                    if (mejorHormiga == null || mejorHormigaLocal.pesoRecorrido() < mejorHormiga.pesoRecorrido()) {
-                        mejorHormiga = mejorHormigaLocal;
-                    }
+                if (mejorHormigaLocal != null &&
+                        (mejorHormiga == null ||
+                                mejorHormigaLocal.pesoRecorrido() < mejorHormiga.pesoRecorrido())) {
+
+                    mejorHormiga = mejorHormigaLocal;
                 }
             }
         });
     }
 
-    /*
+    // --------------| Metodos Getter |-------------- //
+
+    public ArrayList<Ccity> getMejorRuta() {
+        if (mejorHormiga == null) {
+            return null;
+        }
+
+        return mejorHormiga.getRuta();
+    }
+
+    public Grafo getGrafo() {
+        return grafo;
+    }
+
+    public int getCantidadHormigas() {
+        return cantidadHormigas;
+    }
+
+    public JPanel getPanelMapa() {
+        return panelMapa;
+    }
+
+    public String getCiudadInicial() {
+        return ciudadInicial;
+    }
+
+    // --------------| Metodos Setter |-------------- //
+
+    public void setGrafo(Grafo grafo) {
+        this.grafo = grafo;
+    }
+
+    public void setCantidadHormigas(int cantidadHormigas) {
+        this.cantidadHormigas = cantidadHormigas;
+    }
+
+    public void setPanelMapa(JPanel panelMapa) {
+        this.panelMapa = panelMapa;
+    }
+
+    public void setCiudadInicial(String ciudadInicial) {
+        this.ciudadInicial = ciudadInicial;
+    }
+
+    // -------------| Metodos Publicos |------------- //
+
+    /**
+     * Comienza la ejecucion del hilo del algoritmo
+     */
+    public void iniciar() {
+        hilo.start();
+    }
+
+    /**
+     * Termina la iteracion actual y finaliza la ejecucion
+     */
+    public void detener() {
+        detenerAlgoritmo = true;
+    }
+
+    /**
      * Obtiene la mejor hormiga hasta el momento para actualizar las feromonas en su
      * ruta
+     * 
+     * @param hormigas Un arreglo de hormigas de donde elejir la mejor
+     * @return La hormiga con el menor costo, o null si ninguna hormiga esta viva
      */
     public Hormiga ObtenerMejorHormiga(Hormiga[] hormigas) {
         Hormiga mejorHormiga = null;
         for (Hormiga hormiga : hormigas) {
-            if (!hormiga.estaViva()) {
+            if (!hormiga.getEstaViva()) {
                 continue;
             }
             if (mejorHormiga == null) {
@@ -77,18 +151,10 @@ public class ACO {
         return mejorHormiga;
     }
 
-    public ArrayList<Ccity> getMejorRuta() {
-        if (mejorHormiga == null) {
-            return null;
-        }
-        
-        return mejorHormiga.getRuta();
-    }
-
-    /*
-     * public void ActualizarFeromonas(Hormiga mejorHormiga){
-     * grafo.EvaporarFeromonas();
-     * }
+    /**
+     * Obtiene la mejor hormiga hasta ahora y representa su ruta
+     * 
+     * @return Una cadena describiendo la ruta de la mejor hormiga
      */
     public String imprimirMejorRuta() {
         if (mejorHormiga == null) {
@@ -108,45 +174,4 @@ public class ACO {
 
         return retorno;
     }
-
-    public Grafo getGrafo() {
-        return grafo;
-    }
-
-    public void setGrafo(Grafo grafo) {
-        this.grafo = grafo;
-    }
-
-    public int getCantidadHormigas() {
-        return cantidadHormigas;
-    }
-
-    public void setCantidadHormigas(int cantidadHormigas) {
-        this.cantidadHormigas = cantidadHormigas;
-    }
-
-    public JPanel getPanelMapa() {
-        return panelMapa;
-    }
-
-    public void setPanelMapa(JPanel panelMapa) {
-        this.panelMapa = panelMapa;
-    }
-
-    public String getCiudadInicial() {
-        return ciudadInicial;
-    }
-
-    public void setCiudadInicial(String ciudadInicial) {
-        this.ciudadInicial = ciudadInicial;
-    }
-
-    public void iniciar() {
-        hilo.start();
-    }
-
-    public void detener() {
-        pararAlgoritmo = true;
-    }
-
 }

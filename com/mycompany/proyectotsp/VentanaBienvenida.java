@@ -5,18 +5,21 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class VentanaBienvenida extends JFrame {
     public JPanel panelPrincipal;
     public JLabel Presentacion, ImagenNodoIzq, ImagenBrujula;
     public JButton BotonMapa, BotonPresentacion;
 
+    /**
+     * Metodo constructor
+     */
     public VentanaBienvenida() {
         setDefaultCloseOperation(EXIT_ON_CLOSE); // Finalizamos el programa al cerrar la ventana
         setTitle("Problema del Viajante(TSP)"); // Título de la ventana
@@ -24,6 +27,8 @@ public class VentanaBienvenida extends JFrame {
         setLocationRelativeTo(null); // Fija la ventana al centro
         iniciarMenu();
     }
+
+    // -------------| Metodos Privados |------------- //
 
     // Este metodo resume las instrucciones para crear la ventana
     private void iniciarMenu() {

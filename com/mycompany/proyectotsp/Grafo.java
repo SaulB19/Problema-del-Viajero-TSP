@@ -1,9 +1,8 @@
 package com.mycompany.proyectotsp;
 
-import java.util.ArrayList;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,34 +14,15 @@ public class Grafo {
     private double minimaFeromona;
     private int ciudadesCantidad;
     private Map<String, Ccity> ciudades;// Contiene las ciudades del grafo
-    private Map<String, double[]> posiciones = new HashMap<>(); // LLeva el seguimiento de las posiciones graficas de
-                                                                // los nodos
 
-    public int getAlpha() {
-        return alpha;
-    }
-
-    public int getBeta() {
-        return beta;
-    }
-
-    public double getEvaporacion() {
-        return evaporacion;
-    }
-
-    public Map<String, Ccity> getCiudades() {
-        return ciudades;
-    }
-
-    public int getCiudadesCantidad() {
-        return ciudadesCantidad;
-    }
-
+    /**
+     * Metodo constructor
+     */
     public Grafo() {
         ciudades = new HashMap<>();
+
         // La cadena debe de ser el nombre del archivo como lo tengan guardado
         // Se pone la cadena como parametro de FileReader
-
         try (BufferedReader bf = new BufferedReader(new FileReader("matriz_adyacencia_estados1.csv"))) {
             String linea;
             String[] ciudadesName = new String[53];
@@ -70,7 +50,7 @@ public class Grafo {
                     double peso = Double.parseDouble(conexiones[i]);
                     if (peso != 0) {
                         Ccity conexion = citiesList.get(i);
-                        ciudad.agregarConexion(conexion, peso);
+                        ciudad.agregarEnlace(conexion, peso);
                     }
                 }
 
@@ -79,10 +59,40 @@ public class Grafo {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-        inicializarPosiciones();
     }
 
+    // --------------| Metodos Getter |-------------- //
+
+    public int getAlpha() {
+        return alpha;
+    }
+
+    public int getBeta() {
+        return beta;
+    }
+
+    public double getEvaporacion() {
+        return evaporacion;
+    }
+
+    public Map<String, Ccity> getCiudades() {
+        return ciudades;
+    }
+
+    public int getCiudadesCantidad() {
+        return ciudadesCantidad;
+    }
+
+    // -------------| Metodos Publicos |------------- //
+
+    /**
+     * Establece los valores relevantes para el algoritmo ACO
+     * 
+     * @param alpha          Influencia de las feromonas en la probabilidad
+     * @param beta           Influencia del valor heuristico en la probabilidad
+     * @param evaporacion    Valor entre 0 y 1 aplicado a cada iteracion
+     * @param minimaFeromona Feromonas minimas al iniciar el grafo
+     */
     public void crearGrafo(int alpha, int beta, double evaporacion, double minimaFeromona) {
         this.alpha = alpha;
         this.beta = beta;
@@ -90,47 +100,12 @@ public class Grafo {
         this.minimaFeromona = minimaFeromona;
     }
 
-    private void inicializarPosiciones() {
-        String[] ciudades = {
-                "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
-                "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia",
-                "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
-                "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
-                "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
-                "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota",
-                "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-                "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-                "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico",
-        };
-
-        // TODO: Reajustar las posiciones en pantalla de los nodos de las ciudades, o
-        // calcularlas dinamicamente
-        double[][] coordenadas = {
-                { 516, 548 }, { 92, 660 }, { 150, 484 }, { 430, 496 }, { 48, 372 },
-                { 248, 366 }, { 676, 244 }, { 650, 326 }, { 628, 330 }, { 606, 672 },
-                { 564, 534 }, { 224, 694 }, { 154, 218 }, { 466, 350 }, { 504, 340 },
-                { 414, 292 }, { 344, 390 }, { 528, 404 }, { 434, 618 }, { 698, 124 },
-                { 646, 344 }, { 678, 218 }, { 522, 250 }, { 396, 154 }, { 468, 572 },
-                { 424, 394 }, { 206, 132 }, { 330, 300 }, { 104, 312 }, { 678, 182 },
-                { 654, 296 }, { 238, 496 }, { 636, 224 }, { 604, 442 }, { 330, 130 },
-                { 546, 320 }, { 356, 482 }, { 80, 168 }, { 610, 288 }, { 690, 234 },
-                { 590, 490 }, { 324, 226 }, { 520, 454 }, { 318, 596 }, { 166, 338 },
-                { 662, 174 }, { 610, 384 }, { 94, 82 }, { 574, 364 }, { 440, 212 },
-                { 230, 250 }, { 758, 648 },
-        };
-
-        for (int i = 0; i < ciudades.length; i++) {
-            posiciones.put(ciudades[i], new double[] { coordenadas[i][0] / 800, coordenadas[i][1] / 800 });
-        }
-    }
-
-    public Map<String, double[]> getPosiciones() {
-        return this.posiciones;
-    }
-
-    /*
+    /**
      * Actualiza las feromonas unicamente del mejor recorrido, o disminuye las de un
      * camino si salida
+     * 
+     * @param hormiga Una hormiga viva para aumentar las feromonas de su camino, de
+     *                lo contrario disminuye las feromonas
      */
     public void actualizarferomonas(Hormiga hormiga) {
         if (hormiga == null) {
@@ -140,7 +115,7 @@ public class Grafo {
         Ccity puntoa = null;
         Ccity puntob = null;
         ArrayList<Ccity> ciudades = hormiga.getRuta();
-        if (!hormiga.estaViva()) {
+        if (!hormiga.getEstaViva()) {
             Ccity anterior = null;
 
             for (Ccity ciudad : hormiga.getRuta()) {
@@ -192,6 +167,10 @@ public class Grafo {
 
     }
 
+    /**
+     * Metodo para aplicar el coeficiente de evaporacion a todos los enlaces del
+     * grafo
+     */
     public void EvaporarFeromonas() {
         // Primero evaporo todas las feromonas y luego le sumo la sumatoria de cada
         // variacion
@@ -213,6 +192,9 @@ public class Grafo {
         }
     }
 
+    /**
+     * Metodo para reinicializar las feromonas al mismo valor
+     */
     public void reiniciarFeromonas() {
         for (Ccity origen : ciudades.values()) {
             for (Ccity destino : origen.getDistancias().keySet()) {

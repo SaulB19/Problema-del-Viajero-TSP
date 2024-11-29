@@ -1,67 +1,38 @@
 package com.mycompany.proyectotsp;
 
-import java.util.*;
+import java.util.HashMap;
 
-public class Ccity implements Iterator<Ccity> {
+public class Ccity {
     // Es la respresentacion de los vertices (nodos)
     private String nombre;
+
     // Hashmap clave ciudad guarda distancias
     private HashMap<Ccity, Double> distancias;
-    // Hashmap clave ciudad guarda booleano que indica si las ciudades estan
-    // conectadas
+
     // Hashmap clave ciudad guarda feromonas desde esta ciudad
     private HashMap<Ccity, Double> feromonas;
-    // Hashmap clave, ciudad con la que conecta
-    // Guarda la suma de las nuevas porciones de feromonas para luego agregarselas a
-    // las feromonas
-    private HashMap<Ccity, Double> temporal;
 
+    /**
+     * Metodo Constructor
+     */
     public Ccity(String nombre) {
         this.nombre = nombre;
         distancias = new HashMap<>();
         feromonas = new HashMap<>();
-        temporal = new HashMap<>();
     }
 
-    // Metodo que agrega una conexion desde esta ciudad a otra (con el peso)
-    public void agregarConexion(Ccity newCity, double distancia) {
-        distancias.put(newCity, distancia);
+    // --------------| Metodos Getter |-------------- //
 
-        // Cada que agrega una nueva conexion inicializa la ruta con un nivel de
-        // feromonas
-        feromonas.put(newCity, 1.0);
-        // En temporal la suma hasta el momento es 0
-        temporal.put(newCity, 0.0);
-    }
-
-    // Metodo que regresa el peso conociendo la ciudad
-    public double GetpesoCiudad(Ccity newCity) {
+    public double getPesoCiudad(Ccity newCity) {
         return distancias.get(newCity);
     }
 
-    // Metodo que nos dice si podemos ir a otra ciudad desde esta
-    public boolean contiene(Ccity newCity) {
-        return distancias.containsKey(newCity);
-    }
-
-    public int CantidadCiudades() {
+    public int getCantidadCiudades() {
         return distancias.size();
-    }
-
-    public void setFeromonas(Ccity newCity, double feromonas) {
-        this.feromonas.replace(newCity, feromonas);
     }
 
     public double getFeromonas(Ccity ciudad) {
         return feromonas.get(ciudad);
-    }
-
-    public void SetSumaFeromonas(Ccity newCity, double suma) {
-        this.temporal.replace(newCity, suma);
-    }
-
-    public double GetSumaFeromonas(Ccity ciudad) {
-        return temporal.get(ciudad);
     }
 
     public HashMap<Ccity, Double> getDistancias() {
@@ -72,22 +43,43 @@ public class Ccity implements Iterator<Ccity> {
         return distancias.get(destino);
     }
 
-    @Override
-    public boolean hasNext() {
-        return false;
+    public String getNombre() {
+        return nombre;
     }
 
-    @Override
-    public Ccity next() {
-        return null;
+    // --------------| Metodos Setter |-------------- //
+
+    public void setFeromonas(Ccity newCity, double feromonas) {
+        this.feromonas.replace(newCity, feromonas);
+    }
+
+    // -------------| Metodos Publicos |------------- //
+
+    /**
+     * Metodo que agrega una enlace desde esta ciudad a otra
+     * 
+     * @param newCity   La ciudad a enlazar
+     * @param distancia La distancia entre estas
+     */
+    public void agregarEnlace(Ccity newCity, double distancia) {
+        distancias.put(newCity, distancia);
+
+        // Cada que agrega un nuevo enlace inicializa la ruta con un nivel de feromonas
+        feromonas.put(newCity, 0.4);
+    }
+
+    /**
+     * Metodo que nos dice si podemos ir a otra ciudad desde esta
+     * 
+     * @param newCity La ciudad a la que se quiere ir
+     * @return true si las ciudades estan enlazadas, o false si no es asi
+     */
+    public boolean contiene(Ccity newCity) {
+        return distancias.containsKey(newCity);
     }
 
     @Override
     public String toString() {
-        return nombre;
-    }
-
-    public String getNombre() {
         return nombre;
     }
 }
