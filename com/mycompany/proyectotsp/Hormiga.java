@@ -114,7 +114,10 @@ public class Hormiga {
             }
         }
 
-        return true;
+        Ccity ultima = ruta.get(ruta.size() - 1);
+
+        estaViva = ultima.contiene(inicio);
+        return estaViva;
     }
 
     /*

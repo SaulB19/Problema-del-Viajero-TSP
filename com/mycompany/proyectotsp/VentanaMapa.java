@@ -112,7 +112,7 @@ public class VentanaMapa extends JFrame {
                 imagenInst.getImage().getScaledInstance(ImagenI.getWidth(), ImagenI.getHeight(), Image.SCALE_SMOOTH)));
         panelOpciones.add(ImagenI);
 
-        String[] ciudades = { "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+        String[] ciudades = { "Ciudad aleatoria", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
                 "Colorado", "Connecticut", "Delaware", "District of Columbia",
                 "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana",
                 "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
@@ -138,7 +138,7 @@ public class VentanaMapa extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // Lógica para calcular rutas
                 aco = new ACO(grafo, 50, 1, 9, 0.01, 0.05, panelMapa);
-
+                grafo.reiniciarFeromonas();
                 // Instrucciones para tomar el la ciudad de origen
                 String origenC = MenuCiudades.getSelectedItem().toString();
                 aco.setCiudadInicial(origenC);

@@ -43,7 +43,7 @@ public class Grafo {
         // La cadena debe de ser el nombre del archivo como lo tengan guardado
         // Se pone la cadena como parametro de FileReader
 
-        try (BufferedReader bf = new BufferedReader(new FileReader("matriz_completa.csv"))) {
+        try (BufferedReader bf = new BufferedReader(new FileReader("matriz_adyacencia_estados1.csv"))) {
             String linea;
             String[] ciudadesName = new String[53];
             // IMPORTANTE la posicion 0 de ciudades name no tiene nada
@@ -150,7 +150,7 @@ public class Grafo {
                 }
 
                 double feromonas = anterior.getFeromonas(ciudad);
-                feromonas /= 2;
+                feromonas *= 0.9992;
 
                 if (feromonas < minimaFeromona) {
                     anterior.setFeromonas(ciudad, minimaFeromona);
@@ -209,6 +209,14 @@ public class Grafo {
                 } else {
                     c.setFeromonas(temp, newFeromona);
                 }
+            }
+        }
+    }
+
+    public void reiniciarFeromonas() {
+        for (Ccity origen : ciudades.values()) {
+            for (Ccity destino : origen.getDistancias().keySet()) {
+                origen.setFeromonas(destino, 1.0);
             }
         }
     }
