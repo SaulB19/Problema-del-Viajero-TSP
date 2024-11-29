@@ -12,6 +12,7 @@ public class VentanaMapa extends JFrame {
     private JButton botonRuta;
     private JButton botonDetener;
     private JTextArea RutaDetallada = new JTextArea();
+    private JScrollPane cajaTexto = new JScrollPane(RutaDetallada);
     private String texto;
     private Grafo grafo;
     private ACO aco;
@@ -165,7 +166,7 @@ public class VentanaMapa extends JFrame {
 
                 // Instrucciones para imprimir la ruta de forma escrita
                 texto = aco.imprimirMejorRuta();
-                imprimirRuta(texto);
+                imprimirRuta("Ciudad de origen: " + aco.getCiudadInicial() + "\n" + texto);
 
                 botonRuta.setVisible(true);
                 botonDetener.setVisible(false);
@@ -186,19 +187,20 @@ public class VentanaMapa extends JFrame {
     }
 
     private void imprimirRuta(String texto) {
-        // RutaDetallada = new JTextArea();
-        RutaDetallada.setBounds(0, 10, 300, 400);
-        RutaDetallada.setPreferredSize(new Dimension(250, 400));
-        RutaDetallada.setText(texto);
-        RutaDetallada.setFont(new Font("times new roman", Font.CENTER_BASELINE, 14));
+//        // RutaDetallada = new JTextArea();
+//        RutaDetallada.setBounds(0, 10, 300, 400);
+//        RutaDetallada.setPreferredSize(new Dimension(300, 400));
+        RutaDetallada.setText(textoOrdenado(texto));
+        RutaDetallada.setFont(new Font("times new roman", Font.CENTER_BASELINE, 12));
         RutaDetallada.setForeground(Color.BLACK);
+        cajaTexto.setPreferredSize(new Dimension(250, 400));
         // RutaDetallada.setEnabled(false);
-        panelOpciones.add(RutaDetallada);
+        panelOpciones.add(cajaTexto);
     }
 
-    // private String StrtoHtml(String texto){
-    // String cadena = texto.replace("\n", "<br>");
-    // return "<html><p>" + cadena + "</p></html>";
-    // }
+    private String textoOrdenado(String texto){
+    String cadena = texto.replace( "->", "->\n");
+        return cadena;
+    }
 
 }
